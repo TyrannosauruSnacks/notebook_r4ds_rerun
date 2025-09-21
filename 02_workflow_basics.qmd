@@ -1,0 +1,90 @@
+---
+title: "02 Workflow: Basics"
+author: "Max Hachemeister"
+format: html
+toc: true
+toc-depth: 3
+---
+
+> "Frustration is natural when you start programming in R [...]."
+
+## 2.1 Coding basics
+
+Basic math calculations:
+
+```{r}
+1 / 200 * 30
+
+(59 + 73 + 2) / 3
+
+sin(pi / 2)
+```
+
+Create objects with the assingment operator `<-`:
+
+```{r}
+x <- 3 * 4
+
+x
+```
+
+*C*ombine values to a vektor with `c()`:
+
+```{r}
+primes <- c(2, 3, 5, 7, 11, 13)
+
+primes
+```
+
+And do arithmetic on such a vector:
+
+```{r}
+primes * 2
+
+primes - 1
+```
+
+## 2.2 Comments
+
+Use `#` to write comments into your code chunks.
+Use comments to explain the why of certain lines, or arguments or values. The *why* is more important than explaining *what* the code does.
+
+## 2.3 What's in a name?
+
+"snake_case" is recommended over "camelCase" or "separating.periods".
+
+R is case sensitive, which means that it will differentiate between "Lasagna_is_food" and "lasagna_is_food".
+
+So be aware of this when naming objects and calling functions and their arguments.
+
+## 2.4 Calling functions
+
+>> In the explanation for `seq()`, the step of putting a colon between `from = 1` and `to = 10` is not mentioned.
+
+You can spare some keystrokes if you know the sequence of the first few arguments of a function (which are usually the most commonly used)
+
+So this code:
+
+```{r}
+seq(from = 1, to = 10)
+```
+
+Is internally the same as this:
+
+```{r}
+seq(1, 10)
+```
+
+Quotation marks and parentheses need to always come in pairs.
+
+This code does not work:
+```{r}
+#| error: true
+
+x <- "Hello world
+```
+
+And R will show you with a `+` in the console that it's expecting more input. Ah yeah and the chunk output will also let you know.
+
+## 2.5 Exercises
+
