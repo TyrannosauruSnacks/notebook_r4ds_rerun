@@ -20,7 +20,7 @@ Basic math calculations:
 sin(pi / 2)
 ```
 
-Create objects with the assingment operator `<-`:
+Create objects with the assignment operator `<-`:
 
 ```{r}
 x <- 3 * 4
@@ -78,6 +78,7 @@ seq(1, 10)
 Quotation marks and parentheses need to always come in pairs.
 
 This code does not work:
+
 ```{r}
 #| error: true
 
@@ -88,3 +89,92 @@ And R will show you with a `+` in the console that it's expecting more input. Ah
 
 ## 2.5 Exercises
 
+### 1.
+
+> Why does this code not work?
+
+Example code:
+
+```{r}
+my_variable <- 10
+my_varıable
+```
+
+The "i" in the second `my_varıable` is different than that in the assigned variable.
+
+### 2.
+
+> Tweak each of the following R commands so that they run correctly
+
+Example code:
+
+```{r}
+libary(todyverse)
+
+ggplot(dTA = mpg) +
+  geom_point(maping = aes(x = displ y = hwy)) +
+  geom_smooth(method = "lm)
+```
+
+There is an "r" missing in "libary" and "todyverse" needs the "o" replaced with an "i".
+
+In `ggplot` the "dTA" should be "data", while in `geom_point` the "maping" misses another "p" and the `aes` arguments should be separated with a colon.
+
+Lastly in `geom_smooth` the value for the `method` argument is of type character and therefore needs to be surrounded by '"'.
+
+In total the working code is this:
+
+```{r}
+#| error: true
+
+library(tidyverse)
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(method = "lm")
+```
+
+Okay, so far we've corrected all the "spelling" errors, however some parts of the code also need to be put in another place.
+
+The error states that `geom_smooth()` requires `x` and `y` aesthetics.
+They have been given in `geom_point()`, but as such only apply to this layer in particular. So to make the code work the `aes(x = displ, y = hwy)` should wander from `geom_point` to `ggplot` so that this mapping applies to all layers of the plot.
+
+Like so:
+
+```{r}
+library(tidyverse)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+### 3.
+
+> Press Option + Shift + K / Alt + Shift + K. What happens? How can you get to the same place using the menus?
+
+Pressing "Alt + Shift + K" opens the "**K**eyboard Shortcut Quick Reference". Which shows commonly used shortcuts for the RStudio IDE and also provides a link to all shortcuts in its top right corner.
+
+You can also get to this Window by clicking "Tools" -> "Keyboard Shortcuts Help" in the menu bar on top of the Rstudio IDE.
+
+### 4.
+
+> Let's revisit an exercise from Section 1.6. Run the following lines of code. Which of the two plots is saved as `02_mpg-plot.png`? Why?
+
+>> I added a "02" to the plot name to have the files ordered in my project folder.
+
+Example code:
+
+```{r}
+my_bar_plot <- ggplot(mpg, aes(x = class)) +
+  geom_bar()
+my_scatter_plot <- ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+ggsave(filename = "02_mpg-plot.png", plot = my_bar_plot)
+```
+
+By default `ggsave()` saves the most recently drawn plot, which would've been `my_scatter_plot`, but the  plot named `my_bar_plot` will get saved as `02_mpg-plot.png`, as it has explicitly been defined as an argument in `ggsave()`.
+
+## 2.6 Summary
+
+In this Chapter I've learned about R's more basic functionality like mathematical calculations, vectors and objects. I further got introduced to the how and why of comments in code, as well as naming conventions for files, objects, etc..  Finally it was explained how functions interpret code, so that the written code can be simplified for writing it faster and more efficient as a human.
