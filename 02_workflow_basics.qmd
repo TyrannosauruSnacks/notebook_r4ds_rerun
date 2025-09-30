@@ -1,7 +1,7 @@
 ---
 title: "02 Workflow: Basics"
 author: "Max Hachemeister"
-format: html
+format: gfm
 toc: true
 toc-depth: 3
 ---
@@ -96,6 +96,7 @@ And R will show you with a `+` in the console that it's expecting more input. Ah
 Example code:
 
 ```{r}
+#| error: true
 my_variable <- 10
 my_varıable
 ```
@@ -109,6 +110,8 @@ The "i" in the second `my_varıable` is different than that in the assigned vari
 Example code:
 
 ```{r}
+#| eval: false
+
 libary(todyverse)
 
 ggplot(dTA = mpg) +
@@ -128,7 +131,6 @@ In total the working code is this:
 #| error: true
 
 library(tidyverse)
-
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy)) +
   geom_smooth(method = "lm")

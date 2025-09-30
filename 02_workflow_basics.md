@@ -1,0 +1,268 @@
+# 02 Workflow: Basics
+Max Hachemeister
+
+- [2.1 Coding basics](#21-coding-basics)
+- [2.2 Comments](#22-comments)
+- [2.3 What’s in a name?](#23-whats-in-a-name)
+- [2.4 Calling functions](#24-calling-functions)
+- [2.5 Exercises](#25-exercises)
+  - [1.](#1)
+  - [2.](#2)
+  - [3.](#3)
+  - [4.](#4)
+- [2.6 Summary](#26-summary)
+
+> “Frustration is natural when you start programming in R \[…\].”
+
+## 2.1 Coding basics
+
+Basic math calculations:
+
+``` r
+1 / 200 * 30
+```
+
+    [1] 0.15
+
+``` r
+(59 + 73 + 2) / 3
+```
+
+    [1] 44.66667
+
+``` r
+sin(pi / 2)
+```
+
+    [1] 1
+
+Create objects with the assignment operator `<-`:
+
+``` r
+x <- 3 * 4
+
+x
+```
+
+    [1] 12
+
+*C*ombine values to a vektor with `c()`:
+
+``` r
+primes <- c(2, 3, 5, 7, 11, 13)
+
+primes
+```
+
+    [1]  2  3  5  7 11 13
+
+And do arithmetic on such a vector:
+
+``` r
+primes * 2
+```
+
+    [1]  4  6 10 14 22 26
+
+``` r
+primes - 1
+```
+
+    [1]  1  2  4  6 10 12
+
+## 2.2 Comments
+
+Use `#` to write comments into your code chunks. Use comments to explain
+the why of certain lines, or arguments or values. The *why* is more
+important than explaining *what* the code does.
+
+## 2.3 What’s in a name?
+
+“snake_case” is recommended over “camelCase” or “separating.periods”.
+
+R is case sensitive, which means that it will differentiate between
+“Lasagna_is_food” and “lasagna_is_food”.
+
+So be aware of this when naming objects and calling functions and their
+arguments.
+
+## 2.4 Calling functions
+
+> > In the explanation for `seq()`, the step of putting a colon between
+> > `from = 1` and `to = 10` is not mentioned.
+
+You can spare some keystrokes if you know the sequence of the first few
+arguments of a function (which are usually the most commonly used)
+
+So this code:
+
+``` r
+seq(from = 1, to = 10)
+```
+
+     [1]  1  2  3  4  5  6  7  8  9 10
+
+Is internally the same as this:
+
+``` r
+seq(1, 10)
+```
+
+     [1]  1  2  3  4  5  6  7  8  9 10
+
+Quotation marks and parentheses need to always come in pairs.
+
+This code does not work:
+
+``` r
+x <- "Hello world
+```
+
+    Error in parse(text = input): <text>:1:6: unexpected INCOMPLETE_STRING
+    1: x <- "Hello world
+             ^
+
+And R will show you with a `+` in the console that it’s expecting more
+input. Ah yeah and the chunk output will also let you know.
+
+## 2.5 Exercises
+
+### 1.
+
+> Why does this code not work?
+
+Example code:
+
+``` r
+my_variable <- 10
+my_varıable
+```
+
+    Error: object 'my_varıable' not found
+
+The “i” in the second `my_varıable` is different than that in the
+assigned variable.
+
+### 2.
+
+> Tweak each of the following R commands so that they run correctly
+
+Example code:
+
+``` r
+libary(todyverse)
+
+ggplot(dTA = mpg) +
+  geom_point(maping = aes(x = displ y = hwy)) +
+  geom_smooth(method = "lm)
+```
+
+There is an “r” missing in “libary” and “todyverse” needs the “o”
+replaced with an “i”.
+
+In `ggplot` the “dTA” should be “data”, while in `geom_point` the
+“maping” misses another “p” and the `aes` arguments should be separated
+with a colon.
+
+Lastly in `geom_smooth` the value for the `method` argument is of type
+character and therefore needs to be surrounded by ‘“’.
+
+In total the working code is this:
+
+``` r
+library(tidyverse)
+```
+
+    ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ✔ dplyr     1.1.4     ✔ readr     2.1.5
+    ✔ forcats   1.0.1     ✔ stringr   1.5.2
+    ✔ ggplot2   4.0.0     ✔ tibble    3.3.0
+    ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+    ✔ purrr     1.1.0     
+    ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ✖ dplyr::filter() masks stats::filter()
+    ✖ dplyr::lag()    masks stats::lag()
+    ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(method = "lm")
+```
+
+    `geom_smooth()` using formula = 'y ~ x'
+
+    Error in `geom_smooth()`:
+    ! Problem while computing stat.
+    ℹ Error occurred in the 2nd layer.
+    Caused by error in `compute_layer()`:
+    ! `stat_smooth()` requires the following missing aesthetics: x and y.
+
+Okay, so far we’ve corrected all the “spelling” errors, however some
+parts of the code also need to be put in another place.
+
+The error states that `geom_smooth()` requires `x` and `y` aesthetics.
+They have been given in `geom_point()`, but as such only apply to this
+layer in particular. So to make the code work the
+`aes(x = displ, y = hwy)` should wander from `geom_point` to `ggplot` so
+that this mapping applies to all layers of the plot.
+
+Like so:
+
+``` r
+library(tidyverse)
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+    `geom_smooth()` using formula = 'y ~ x'
+
+![](02_workflow_basics_files/figure-commonmark/unnamed-chunk-11-1.png)
+
+### 3.
+
+> Press Option + Shift + K / Alt + Shift + K. What happens? How can you
+> get to the same place using the menus?
+
+Pressing “Alt + Shift + K” opens the “**K**eyboard Shortcut Quick
+Reference”. Which shows commonly used shortcuts for the RStudio IDE and
+also provides a link to all shortcuts in its top right corner.
+
+You can also get to this Window by clicking “Tools” -\> “Keyboard
+Shortcuts Help” in the menu bar on top of the Rstudio IDE.
+
+### 4.
+
+> Let’s revisit an exercise from Section 1.6. Run the following lines of
+> code. Which of the two plots is saved as `02_mpg-plot.png`? Why?
+
+> > I added a “02” to the plot name to have the files ordered in my
+> > project folder.
+
+Example code:
+
+``` r
+my_bar_plot <- ggplot(mpg, aes(x = class)) +
+  geom_bar()
+my_scatter_plot <- ggplot(mpg, aes(x = cty, y = hwy)) +
+  geom_point()
+ggsave(filename = "02_mpg-plot.png", plot = my_bar_plot)
+```
+
+    Saving 7 x 5 in image
+
+By default `ggsave()` saves the most recently drawn plot, which would’ve
+been `my_scatter_plot`, but the plot named `my_bar_plot` will get saved
+as `02_mpg-plot.png`, as it has explicitly been defined as an argument
+in `ggsave()`.
+
+## 2.6 Summary
+
+In this Chapter I’ve learned about R’s more basic functionality like
+mathematical calculations, vectors and objects. I further got introduced
+to the how and why of comments in code, as well as naming conventions
+for files, objects, etc.. Finally it was explained how functions
+interpret code, so that the written code can be simplified for writing
+it faster and more efficient as a human.
