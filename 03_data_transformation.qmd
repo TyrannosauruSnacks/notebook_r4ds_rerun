@@ -1,0 +1,119 @@
+---
+title: "Data transformation"
+author: "Max Hachemeister"
+format: gfm
+editor: source
+---
+
+## Prerequisites
+
+```{r}
+#| label: setup
+#| output: false
+
+library(tidyverse)
+library(nycflights13)
+```
+
+## Introduction
+
+Take a look at the `flights` dataframe, by either `glimpse()` or just typing the object directly. I will use the former:
+
+```{r}
+glimpse(flights)
+```
+
+## Rows
+
+`filter()` changes which rows are present without changing their order.
+
+`arrange()` changes the order of the rows without changing which are present.
+
+`distinct()` finds rows with unique values.
+
+### `filter()`
+
+Find all flights with that departed more than 120 minutes late:
+
+```{r}
+flights |> 
+  filter(dep_delay > 120)
+```
+
+ | 
+---   | ---
+`>`   | greater than
+`>=`  | greater than or equal 
+`<`   | less than
+`<=`  | less than or equal to
+`==`  | equal to (notice the two "**=**" )
+`!=`  | not equal to
+
+Also several conditions can be combined:
+
+  |   
+--- | ---
+`&` | AND
+`\|` | OR
+
+E.g. find all flights that departed in January OR February (which can be translated to [...] all departures of January and February):
+
+```{r}
+flights |> 
+  filter(month == 1 | month == 2)
+```
+
+Ah you couldn't even navigate to the ones from February, because there are `{r} nrow(flights |> filter(month == 1 | month == 2))` rows in total, even after the filtering.
+
+Let's find all flights that departed on the 1st of January:
+
+```{r}
+flights |> 
+  filter(month == 1 & day == 1)
+```
+
+
+Oh and there is this `%in%`, which followed by a vector (`c(value1, value2)`) can be used to spare you typing a lot of `==`, `|` combinations. E.g. for finding all the flights that departed in January, or February, or March you could just write:
+
+```{r}
+flights |> 
+  filter(month %in% c(1, 2, 3))
+```
+
+While the long version would be:
+
+```{r}
+flights |> 
+  filter(month == 1 | month == 2 | month == 3)
+```
+
+Important to know is that `filter()` never changes the input.
+That means to save the results you need to assign them to an object:
+
+```{r}
+#| output: false
+
+jan1 <- 
+  flights |> 
+  filter(month == 1 & day == 2)
+
+jan1
+```
+
+
+### `arrange()`
+
+`arrange()` changes the order of the rows, by the columns you provide as argument. Every additional column will break ties of the preceding ones, which translates to: "Arrange by attribute1 and then arrange all those with the same attribute1-values by the values of attribute2".
+
+For example: "Arrange all flights by Year, and all of the same year then by month, and then within each month by day and within each day by departure time.", would translate to code as:
+
+```{r}
+flights |> 
+  arrange(
+    year,
+    month,
+    day,
+    dep_time
+  )
+```
+
