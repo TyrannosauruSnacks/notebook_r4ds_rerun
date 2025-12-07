@@ -1,5 +1,5 @@
 ---
-title: "Data transformation"
+title: "03 Data transformation"
 author: "Max Hachemeister"
 format: gfm
 editor: source
@@ -13,6 +13,7 @@ editor: source
 
 library(tidyverse)
 library(nycflights13)
+set_theme(theme_light())
 ```
 
 ## Introduction
@@ -115,5 +116,222 @@ flights |>
     day,
     dep_time
   )
+```
+
+And If I wanted to arrange any of the columns from highest to lowest, I can put it in the `desc()` function:
+
+```{r}
+flights |> 
+  arrange(
+    year,
+    desc(month),
+    desc(day),
+    dep_time
+  )
+
+```
+
+### `distinct()`
+
+So `distinct()` foremost filters out duplicate rows in a dataset, so we could see, whether there are duplicates in the `flights` dataset:
+```{r}
+# from the flights dataframe filter out duplicate rows and then count the remaining
+flights |> 
+  distinct() |> 
+  nrow()
+
+# from the flights dataframe count all the rows
+flights |> 
+  nrow()
+```
+
+`distinct()` further finds all the unique combinations for provided columns:
+```{r}
+# from the flights dataframe find all unique tailnumber and destination pairs
+flights |> 
+  distinct(tailnum, dest)
+
+# lets see whether the order makes a difference
+flights |> 
+  distinct(dest, tailnum)
+```
+
+So the order of the argument just changes the form of the output. If I want to keep all the columns in the output, I can use the `.keep_all = TRUE` option:
+
+```{r}
+flights |> 
+  distinct(tailnum, dest,
+           .keep_all = TRUE)
+```
+
+`distinct()` always gives you the first instance of a distinct row it finds. As somewhat of an extension to this `count()` also give you the distinct combinations of the defined columns, but also the number times each combination occurs. More on that in another section though.
+
+```{r}
+flights |> 
+  count(tailnum, dest, sort = TRUE)
+```
+## Exercises
+
+### 1.
+
+> In a single pipeline for each condition, find all flights that meet the condition:
+>
+> * Had an arrival delay of two or more hours
+> * Flew to Houston (`IAH` or `HOU`)
+> * Were operated by United, American, or Delta
+> * Departed in summer (July, August, and September)
+> * Arrived more than two hours late but didn't leave late
+> * Were delayed by at least an hour, but made up over 30 minutes in flight
+
+```{r}
+# Had an arrival delay of two or more hours
+flights |> 
+  filter(arr_delay >= 120)
+
+# Flew to Houston (`IAH` or `HOU`)
+flights |> 
+  filter(dest == "IAH" | dest == "HOU")
+
+## or the elegant version
+flights |> 
+  filter(dest %in% c("IAH", "HOU"))
+
+# Were operated by United, American, or Delta
+## Check the abbreviation for the `airlines`
+airlines
+
+## So we have UA, AA, and DL
+flights |> 
+  filter(carrier %in% c("UA", "AA", "DL"))
+
+# Departed in summer (July, August, and September)
+flights |> 
+  filter(month %in% c(6, 7, 8))
+
+## Or slightly more elegant
+flights |> 
+  filter(month %in% 6:8)
+
+# Arrived more than two hours late but didn't leave late
+flights |> 
+  filter(arr_delay >= 120 & dep_delay <= 0)
+
+# Were delayed by at least an hour, but made up over 30 minutes
+flights |> 
+  filter(dep_delay >= 60 & arr_delay < dep_delay - 30)
+
+## Just checking whether I can write it differently
+flights |> 
+  filter(dep_delay >= 60 & dep_delay - arr_delay >= 30)
+
+### It seems to get different results. Let's compare the solutions: 
+flights |> 
+  select(dep_delay, arr_delay) |>
+  mutate(time_won = dep_delay - arr_delay,
+         won_30 = arr_delay < dep_delay - 30,
+         won_30_alt = time_won >= 30) |> 
+  filter(won_30 != won_30_alt)
+
+### Ah yeah, actually they both give the same result, when I keep the `=` for both comparisons
+### Hat another intuition when writing the first call
+### Correct version
+flights |> 
+  select(dep_delay, arr_delay) |>
+  mutate(time_won = dep_delay - arr_delay,
+         won_30 = arr_delay <= dep_delay - 30,
+         won_30_alt = time_won >= 30) |> 
+  filter(won_30 != won_30_alt)
+
+```
+
+### 2.
+
+> Sort `flights` to find the flights with the longest departure delays. Find the flights that left earliest in the morning.
+
+```{r}
+# Flights with the longest delay
+flights |> 
+  arrange(desc(dep_delay))
+
+# Flights that left earliest in the morning
+flights |> 
+  arrange(dep_time)
+```
+
+### 3.
+
+> Sort `flights` to find the fastest flights. (Hint: Try including a math calculation inside of your function)
+
+```{r}
+flights |> 
+  arrange(air_time)
+
+# Ahh okay with fastest, I guess It should be the shortest `distance` per `air_time`
+# This would translate to miles per minute
+flights |> 
+  arrange(desc(distance / air_time))
+
+## Yeah let's actually add this as a column to see what's happening
+flights |>
+  mutate(miles_minutes = distance / air_time) |> 
+  arrange(desc(miles_minutes))
+
+## Can I do this directly in `arrange()`
+flights |> 
+  arrange(miles_minutes = distance / air_time)
+### No :-)
+
+## But I can make it miles per hour at least
+flights |> 
+  mutate(miles_hour = distance / (air_time / 60)) |> 
+  arrange(desc(miles_hour))
+```
+
+### 4.
+
+> Was there a flight on every day of 2013?
+
+```{r}
+flights |> 
+  distinct(day)
+
+# A yeah this way I only get the distinct days.
+# But they can repeat for each month
+
+flights |> 
+  distinct(month, day)
+
+# To make it precise, let's count the rows
+flights |> 
+  distinct(month, day) |> 
+  nrow()
+```
+
+### 5.
+
+> Which flights traveled the farthest distance? Which traveled the least distance?
+
+```{r}
+# Farthest distance
+flights |> 
+  arrange(desc(distance))
+
+# Least distance
+flights |> 
+  arrange(distance)
+```
+
+### 6.
+
+> Does it matter what order you used `filter()` and `arrange()` if you're using both? Why/Why not? Think about the results and how much work the functions would have to do.
+
+`arrange()` will always compare all rows, so If I would `filter()` before that, fewer rows will have to be compared by `arrange()`.
+
+For example `flights` has `{r} nrow(flights)` rows, while after filtering for the `AA` `carrier` there will be only `{r} nrow(flights |> filter(carrier == "AA"))` to `arrange()`.
+
+```{r}
+flights |> 
+  filter(carrier == "AA") |> 
+  arrange(desc(arr_delay))
 ```
 
