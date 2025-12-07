@@ -263,28 +263,34 @@ flights |>
 > Sort `flights` to find the fastest flights. (Hint: Try including a math calculation inside of your function)
 
 ```{r}
+#| error: true
+
 flights |> 
   arrange(air_time)
 
-# Ahh okay with fastest, I guess It should be the shortest `distance` per `air_time`
+# Ahh okay with fastest, I guess It should be the most `distance` per `air_time`
 # This would translate to miles per minute
 flights |> 
-  arrange(desc(distance / air_time))
+  arrange(desc(distance / air_time)) |> 
+  select(distance, air_time)
 
 ## Yeah let's actually add this as a column to see what's happening
 flights |>
   mutate(miles_minutes = distance / air_time) |> 
-  arrange(desc(miles_minutes))
+  arrange(desc(miles_minutes)) |> 
+  select(distance, air_time, miles_minutes)
 
 ## Can I do this directly in `arrange()`
 flights |> 
-  arrange(miles_minutes = distance / air_time)
+  arrange(miles_minutes = distance / air_time) |> 
+  select(distance, air_time, miles_minutes)
 ### No :-)
 
 ## But I can make it miles per hour at least
 flights |> 
   mutate(miles_hour = distance / (air_time / 60)) |> 
-  arrange(desc(miles_hour))
+  arrange(desc(miles_hour)) |> 
+  select(distance, air_time, miles_hour)
 ```
 
 ### 4.
@@ -314,11 +320,13 @@ flights |>
 ```{r}
 # Farthest distance
 flights |> 
-  arrange(desc(distance))
+  arrange(desc(distance)) |> 
+  select(flight, distance)
 
 # Least distance
 flights |> 
-  arrange(distance)
+  arrange(distance) |> 
+  select(flight, distance)
 ```
 
 ### 6.
@@ -332,6 +340,7 @@ For example `flights` has `{r} nrow(flights)` rows, while after filtering for th
 ```{r}
 flights |> 
   filter(carrier == "AA") |> 
-  arrange(desc(arr_delay))
+  arrange(desc(arr_delay)) |> 
+  select(arr_delay)
 ```
 

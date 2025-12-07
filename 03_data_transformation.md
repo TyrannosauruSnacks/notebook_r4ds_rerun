@@ -780,78 +780,61 @@ flights |>
     #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
 ``` r
-# Ahh okay with fastest, I guess It should be the shortest `distance` per `air_time`
+# Ahh okay with fastest, I guess It should be the most `distance` per `air_time`
 # This would translate to miles per minute
 flights |> 
-  arrange(desc(distance / air_time))
+  arrange(desc(distance / air_time)) |> 
+  select(distance, air_time)
 ```
 
-    # A tibble: 336,776 × 19
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     5    25     1709           1700         9     1923           1937
-     2  2013     7     2     1558           1513        45     1745           1719
-     3  2013     5    13     2040           2025        15     2225           2226
-     4  2013     3    23     1914           1910         4     2045           2043
-     5  2013     1    12     1559           1600        -1     1849           1917
-     6  2013    11    17      650            655        -5     1059           1150
-     7  2013     2    21     2355           2358        -3      412            438
-     8  2013    11    17      759            800        -1     1212           1255
-     9  2013    11    16     2003           1925        38       17             36
-    10  2013    11    16     2349           2359       -10      402            440
+    # A tibble: 336,776 × 2
+       distance air_time
+          <dbl>    <dbl>
+     1      762       65
+     2     1008       93
+     3      594       55
+     4      748       70
+     5     1035      105
+     6     1598      170
+     7     1598      172
+     8     1623      175
+     9     1598      173
+    10     1598      173
     # ℹ 336,766 more rows
-    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
 ``` r
 ## Yeah let's actually add this as a column to see what's happening
 flights |>
   mutate(miles_minutes = distance / air_time) |> 
-  arrange(desc(miles_minutes))
+  arrange(desc(miles_minutes)) |> 
+  select(distance, air_time, miles_minutes)
 ```
 
-    # A tibble: 336,776 × 20
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     5    25     1709           1700         9     1923           1937
-     2  2013     7     2     1558           1513        45     1745           1719
-     3  2013     5    13     2040           2025        15     2225           2226
-     4  2013     3    23     1914           1910         4     2045           2043
-     5  2013     1    12     1559           1600        -1     1849           1917
-     6  2013    11    17      650            655        -5     1059           1150
-     7  2013     2    21     2355           2358        -3      412            438
-     8  2013    11    17      759            800        -1     1212           1255
-     9  2013    11    16     2003           1925        38       17             36
-    10  2013    11    16     2349           2359       -10      402            440
+    # A tibble: 336,776 × 3
+       distance air_time miles_minutes
+          <dbl>    <dbl>         <dbl>
+     1      762       65         11.7 
+     2     1008       93         10.8 
+     3      594       55         10.8 
+     4      748       70         10.7 
+     5     1035      105          9.86
+     6     1598      170          9.4 
+     7     1598      172          9.29
+     8     1623      175          9.27
+     9     1598      173          9.24
+    10     1598      173          9.24
     # ℹ 336,766 more rows
-    # ℹ 12 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>, miles_minutes <dbl>
 
 ``` r
 ## Can I do this directly in `arrange()`
 flights |> 
-  arrange(miles_minutes = distance / air_time)
+  arrange(miles_minutes = distance / air_time) |> 
+  select(distance, air_time, miles_minutes)
 ```
 
-    # A tibble: 336,776 × 19
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     1    28     1917           1825        52     2118           1935
-     2  2013     6    29      755            800        -5     1035            909
-     3  2013     8    28      932            940        -8     1116           1051
-     4  2013     1    30     1037            955        42     1221           1100
-     5  2013    11    27      556            600        -4      727            658
-     6  2013     5    21      558            600        -2      721            657
-     7  2013    12     9     1540           1535         5     1720           1656
-     8  2013     6    10     1356           1300        56     1646           1414
-     9  2013     7    28     1322           1325        -3     1612           1432
-    10  2013     4    11     1349           1345         4     1542           1453
-    # ℹ 336,766 more rows
-    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>
+    Error in `select()`:
+    ! Can't select columns that don't exist.
+    ✖ Column `miles_minutes` doesn't exist.
 
 ``` r
 ### No :-)
@@ -859,26 +842,24 @@ flights |>
 ## But I can make it miles per hour at least
 flights |> 
   mutate(miles_hour = distance / (air_time / 60)) |> 
-  arrange(desc(miles_hour))
+  arrange(desc(miles_hour)) |> 
+  select(distance, air_time, miles_hour)
 ```
 
-    # A tibble: 336,776 × 20
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     5    25     1709           1700         9     1923           1937
-     2  2013     7     2     1558           1513        45     1745           1719
-     3  2013     5    13     2040           2025        15     2225           2226
-     4  2013     3    23     1914           1910         4     2045           2043
-     5  2013     1    12     1559           1600        -1     1849           1917
-     6  2013    11    17      650            655        -5     1059           1150
-     7  2013     2    21     2355           2358        -3      412            438
-     8  2013    11    17      759            800        -1     1212           1255
-     9  2013    11    16     2003           1925        38       17             36
-    10  2013    11    16     2349           2359       -10      402            440
+    # A tibble: 336,776 × 3
+       distance air_time miles_hour
+          <dbl>    <dbl>      <dbl>
+     1      762       65       703.
+     2     1008       93       650.
+     3      594       55       648 
+     4      748       70       641.
+     5     1035      105       591.
+     6     1598      170       564 
+     7     1598      172       557.
+     8     1623      175       556.
+     9     1598      173       554.
+    10     1598      173       554.
     # ℹ 336,766 more rows
-    # ℹ 12 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>, miles_hour <dbl>
 
 ### 4.
 
@@ -944,50 +925,46 @@ flights |>
 ``` r
 # Farthest distance
 flights |> 
-  arrange(desc(distance))
+  arrange(desc(distance)) |> 
+  select(flight, distance)
 ```
 
-    # A tibble: 336,776 × 19
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     1     1      857            900        -3     1516           1530
-     2  2013     1     2      909            900         9     1525           1530
-     3  2013     1     3      914            900        14     1504           1530
-     4  2013     1     4      900            900         0     1516           1530
-     5  2013     1     5      858            900        -2     1519           1530
-     6  2013     1     6     1019            900        79     1558           1530
-     7  2013     1     7     1042            900       102     1620           1530
-     8  2013     1     8      901            900         1     1504           1530
-     9  2013     1     9      641            900      1301     1242           1530
-    10  2013     1    10      859            900        -1     1449           1530
+    # A tibble: 336,776 × 2
+       flight distance
+        <int>    <dbl>
+     1     51     4983
+     2     51     4983
+     3     51     4983
+     4     51     4983
+     5     51     4983
+     6     51     4983
+     7     51     4983
+     8     51     4983
+     9     51     4983
+    10     51     4983
     # ℹ 336,766 more rows
-    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
 ``` r
 # Least distance
 flights |> 
-  arrange(distance)
+  arrange(distance) |> 
+  select(flight, distance)
 ```
 
-    # A tibble: 336,776 × 19
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     7    27       NA            106        NA       NA            245
-     2  2013     1     3     2127           2129        -2     2222           2224
-     3  2013     1     4     1240           1200        40     1333           1306
-     4  2013     1     4     1829           1615       134     1937           1721
-     5  2013     1     4     2128           2129        -1     2218           2224
-     6  2013     1     5     1155           1200        -5     1241           1306
-     7  2013     1     6     2125           2129        -4     2224           2224
-     8  2013     1     7     2124           2129        -5     2212           2224
-     9  2013     1     8     2127           2130        -3     2304           2225
-    10  2013     1     9     2126           2129        -3     2217           2224
+    # A tibble: 336,776 × 2
+       flight distance
+        <int>    <dbl>
+     1   1632       17
+     2   3833       80
+     3   4193       80
+     4   4502       80
+     5   4645       80
+     6   4193       80
+     7   4619       80
+     8   4619       80
+     9   4619       80
+    10   4619       80
     # ℹ 336,766 more rows
-    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
 ### 6.
 
@@ -1004,23 +981,21 @@ For example `flights` has 336776 rows, while after filtering for the
 ``` r
 flights |> 
   filter(carrier == "AA") |> 
-  arrange(desc(arr_delay))
+  arrange(desc(arr_delay)) |> 
+  select(arr_delay)
 ```
 
-    # A tibble: 32,729 × 19
-        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
-       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
-     1  2013     9    20     1139           1845      1014     1457           2210
-     2  2013    12     5      756           1700       896     1058           2020
-     3  2013     5    19      713           1700       853     1007           1955
-     4  2013    12    17      705           1700       845     1026           2020
-     5  2013     6    27      753           1830       803      937           2015
-     6  2013     4    19      606           1725       761      923           2020
-     7  2013     4    19      617           1700       797      858           1955
-     8  2013    12    15      625           1925       660      933           2245
-     9  2013     7    21     1555            615       580     1955            910
-    10  2013    11    24     2301           1225       636      149           1535
+    # A tibble: 32,729 × 1
+       arr_delay
+           <dbl>
+     1      1007
+     2       878
+     3       852
+     4       846
+     5       802
+     6       783
+     7       783
+     8       648
+     9       645
+    10       614
     # ℹ 32,719 more rows
-    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
-    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
-    #   hour <dbl>, minute <dbl>, time_hour <dttm>
