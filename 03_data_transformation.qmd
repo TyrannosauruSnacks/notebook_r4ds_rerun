@@ -1,7 +1,9 @@
 ---
 title: "03 Data transformation"
 author: "Max Hachemeister"
-format: gfm
+format:
+  gfm:
+    toc: true
 editor: source
 ---
 
@@ -14,8 +16,9 @@ editor: source
 library(tidyverse)
 library(nycflights13)
 set_theme(theme_light())
-```
 
+```
+	
 ## Link to website
 
 - <https://r4ds.hadley.nz/data-transform.html>
@@ -386,4 +389,155 @@ flights |>
     .keep = "used"
   )
 ```
+### `select()`
 
+- Reduces the data to columns of interest
+
+-   Select columns by name:
+
+    ```{r}
+    #| results: false
+    flights |>
+      select(year, month, day)
+    ```
+
+-   Select all columns between year and day:
+
+    ```{r}
+    #| results: false
+    flights |>
+      select(year:day)
+    ```
+    
+-   Select all columns exept those from year to day:
+    
+    ```{r}
+    #| results: false
+    flights |>
+      select(!year:day)
+    ```
+
+Ah interesting, back in the day you could also have done this 'negative' selection with `-`, but it has been changed to `!` for consistency with other `select()` features.
+
+-   Select all columns that are characters:
+
+    ```{r}
+    #| results: false
+    flights |>
+      select(where(is.character))
+    ```
+
+There are more ways to select columns by "regular" expressions and some other functions:
+
+- `starts_with()`
+- `ends_with()`
+- `contains()`
+- `num_range()`
+
+But more on that in a later section.
+
+### `rename()`
+
+  - renames columns by `newname = oldname` syntax:
+
+    ```{r}
+    #| results: false
+    flights |>
+      rename(tail_num = tailnum)
+    ```
+
+### `relocate()`
+
+  - moves columns, i. e. changes their order
+  
+    ```{r}
+    #| results: false
+    flights |>
+      relocate(time_hour, air_time)
+    ```
+  - Can I also rename in the same step?
+  
+    ```{r}
+    flights |>
+      relocate(time = time_hour,
+               duration = air_time)
+    ```
+    - Yes, nice!
+
+### Exercises
+
+#### 1.
+
+> Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
+
+Take a look at those columns only:
+```{r}
+flights |>
+  select(dep_time, sched_dep_time, dep_delay)
+```
+
+Seems like `dep_delay` is just calculated from `dep_time` and `sched_dep_time`. Let's check that by creating a column with this calculation:
+```{r}
+flights |>
+  mutate(delay_check = dep_time - sched_dep_time)
+```
+
+Well I can't see them that well. Let's also `select()` those of interest:
+```{r}
+flights |>
+  mutate(delay_check = dep_time - sched_dep_time) |>
+  select(dep_time, sched_dep_time, delay_check, dep_delay)
+```
+Aha interesting, so it's not simple subtraction because these numbers represent hours and minutes, therefore the difference in minutes between 554 and 600 would be -6 instead of -46.  
+Okay, but let's not get caught up here an move on to the next question.
+
+2. 
+
+> Brainstorm as many ways as possible to select `dep_time`, `dep_delay`, `arr_time`, and `arr_delay` from `flights`.
+
+  - Describe them directly:
+    
+    ```{r}
+    #| results: false
+    flights |> 
+      select(dep_time, dep_delay, arr_time, arr_delay)
+    ```
+
+  - Use numbers instead:
+    
+    ```{r}
+    #| results: false
+    flights |>
+      select(4, 6, 7, 9)
+    ```
+
+  - Not select everything else:
+  
+    ```{r}
+    flights |>
+      select(!year:day, !sched_dep_time, 
+             !sched_arr_time, !carrier:time_hour)
+    ```
+      - Okay this NOT works only for one value, but all after that seem to be ignored.
+  - I checked the documentation and it seems like I should put all those into a vector like so:
+      
+    ```{r}
+    flights |>
+      select(!c(year:day, sched_dep_time, 
+             sched_arr_time, carrier:time_hour))
+    ```
+
+  - Let's try these helper functions:
+    ```{r}
+    flights |>
+      select(starts_with("arr_"), starts_with("dep_"))
+    ```
+    - This worked, nice!
+    
+    ```{r}
+    flights |>
+      select(contains("time"), contains("delay"))
+    ```
+    - Yeah not exactly, but okay.
+    
+    

@@ -1,6 +1,21 @@
 # 03 Data transformation
 Max Hachemeister
 
+- [Prerequisites](#prerequisites)
+- [Link to website](#link-to-website)
+- [Introduction](#introduction)
+- [Rows](#rows)
+  - [`filter()`](#filter)
+  - [`arrange()`](#arrange)
+  - [`distinct()`](#distinct)
+  - [Exercises](#exercises)
+- [Columns](#columns)
+  - [`mutate()`](#mutate)
+  - [`select()`](#select)
+  - [`rename()`](#rename)
+  - [`relocate()`](#relocate)
+  - [Exercises](#exercises-1)
+
 ## Prerequisites
 
 ``` r
@@ -1102,3 +1117,299 @@ flights |>
      9        -3        -8      140     5 2.33           2.14
     10        -2         8      138   -10 2.3           -4.35
     # ℹ 336,766 more rows
+
+### `select()`
+
+- Reduces the data to columns of interest
+
+- Select columns by name:
+
+  ``` r
+  flights |>
+    select(year, month, day)
+  ```
+
+- Select all columns between year and day:
+
+  ``` r
+  flights |>
+    select(year:day)
+  ```
+
+- Select all columns exept those from year to day:
+
+  ``` r
+  flights |>
+    select(!year:day)
+  ```
+
+Ah interesting, back in the day you could also have done this ‘negative’
+selection with `-`, but it has been changed to `!` for consistency with
+other `select()` features.
+
+- Select all columns that are characters:
+
+  ``` r
+  flights |>
+    select(where(is.character))
+  ```
+
+There are more ways to select columns by “regular” expressions and some
+other functions:
+
+- `starts_with()`
+- `ends_with()`
+- `contains()`
+- `num_range()`
+
+But more on that in a later section.
+
+### `rename()`
+
+- renames columns by `newname = oldname` syntax:
+
+  ``` r
+  flights |>
+    rename(tail_num = tailnum)
+  ```
+
+### `relocate()`
+
+- moves columns, i. e. changes their order
+
+  ``` r
+  flights |>
+    relocate(time_hour, air_time)
+  ```
+
+- Can I also rename in the same step?
+
+  ``` r
+  flights |>
+    relocate(time = time_hour,
+             duration = air_time)
+  ```
+
+      # A tibble: 336,776 × 19
+         time                duration  year month   day dep_time sched_dep_time
+         <dttm>                 <dbl> <int> <int> <int>    <int>          <int>
+       1 2013-01-01 05:00:00      227  2013     1     1      517            515
+       2 2013-01-01 05:00:00      227  2013     1     1      533            529
+       3 2013-01-01 05:00:00      160  2013     1     1      542            540
+       4 2013-01-01 05:00:00      183  2013     1     1      544            545
+       5 2013-01-01 06:00:00      116  2013     1     1      554            600
+       6 2013-01-01 05:00:00      150  2013     1     1      554            558
+       7 2013-01-01 06:00:00      158  2013     1     1      555            600
+       8 2013-01-01 06:00:00       53  2013     1     1      557            600
+       9 2013-01-01 06:00:00      140  2013     1     1      557            600
+      10 2013-01-01 06:00:00      138  2013     1     1      558            600
+      # ℹ 336,766 more rows
+      # ℹ 12 more variables: dep_delay <dbl>, arr_time <int>, sched_arr_time <int>,
+      #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>, origin <chr>,
+      #   dest <chr>, distance <dbl>, hour <dbl>, minute <dbl>
+
+  - Yes, nice!
+
+### Exercises
+
+#### 1.
+
+> Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you
+> expect those three numbers to be related?
+
+Take a look at those columns only:
+
+``` r
+flights |>
+  select(dep_time, sched_dep_time, dep_delay)
+```
+
+    # A tibble: 336,776 × 3
+       dep_time sched_dep_time dep_delay
+          <int>          <int>     <dbl>
+     1      517            515         2
+     2      533            529         4
+     3      542            540         2
+     4      544            545        -1
+     5      554            600        -6
+     6      554            558        -4
+     7      555            600        -5
+     8      557            600        -3
+     9      557            600        -3
+    10      558            600        -2
+    # ℹ 336,766 more rows
+
+Seems like `dep_delay` is just calculated from `dep_time` and
+`sched_dep_time`. Let’s check that by creating a column with this
+calculation:
+
+``` r
+flights |>
+  mutate(delay_check = dep_time - sched_dep_time)
+```
+
+    # A tibble: 336,776 × 20
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013     1     1      517            515         2      830            819
+     2  2013     1     1      533            529         4      850            830
+     3  2013     1     1      542            540         2      923            850
+     4  2013     1     1      544            545        -1     1004           1022
+     5  2013     1     1      554            600        -6      812            837
+     6  2013     1     1      554            558        -4      740            728
+     7  2013     1     1      555            600        -5      913            854
+     8  2013     1     1      557            600        -3      709            723
+     9  2013     1     1      557            600        -3      838            846
+    10  2013     1     1      558            600        -2      753            745
+    # ℹ 336,766 more rows
+    # ℹ 12 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+    #   hour <dbl>, minute <dbl>, time_hour <dttm>, delay_check <int>
+
+Well I can’t see them that well. Let’s also `select()` those of
+interest:
+
+``` r
+flights |>
+  mutate(delay_check = dep_time - sched_dep_time) |>
+  select(dep_time, sched_dep_time, delay_check, dep_delay)
+```
+
+    # A tibble: 336,776 × 4
+       dep_time sched_dep_time delay_check dep_delay
+          <int>          <int>       <int>     <dbl>
+     1      517            515           2         2
+     2      533            529           4         4
+     3      542            540           2         2
+     4      544            545          -1        -1
+     5      554            600         -46        -6
+     6      554            558          -4        -4
+     7      555            600         -45        -5
+     8      557            600         -43        -3
+     9      557            600         -43        -3
+    10      558            600         -42        -2
+    # ℹ 336,766 more rows
+
+Aha interesting, so it’s not simple subtraction because these numbers
+represent hours and minutes, therefore the difference in minutes between
+554 and 600 would be -6 instead of -46.  
+Okay, but let’s not get caught up here an move on to the next question.
+
+2.  
+
+> Brainstorm as many ways as possible to select `dep_time`, `dep_delay`,
+> `arr_time`, and `arr_delay` from `flights`.
+
+- Describe them directly:
+
+  ``` r
+  flights |> 
+    select(dep_time, dep_delay, arr_time, arr_delay)
+  ```
+
+- Use numbers instead:
+
+  ``` r
+  flights |>
+    select(4, 6, 7, 9)
+  ```
+
+- Not select everything else:
+
+  ``` r
+  flights |>
+    select(!year:day, !sched_dep_time, 
+           !sched_arr_time, !carrier:time_hour)
+  ```
+
+      # A tibble: 336,776 × 19
+         dep_time sched_dep_time dep_delay arr_time sched_arr_time arr_delay carrier
+            <int>          <int>     <dbl>    <int>          <int>     <dbl> <chr>  
+       1      517            515         2      830            819        11 UA     
+       2      533            529         4      850            830        20 UA     
+       3      542            540         2      923            850        33 AA     
+       4      544            545        -1     1004           1022       -18 B6     
+       5      554            600        -6      812            837       -25 DL     
+       6      554            558        -4      740            728        12 UA     
+       7      555            600        -5      913            854        19 B6     
+       8      557            600        -3      709            723       -14 EV     
+       9      557            600        -3      838            846        -8 B6     
+      10      558            600        -2      753            745         8 AA     
+      # ℹ 336,766 more rows
+      # ℹ 12 more variables: flight <int>, tailnum <chr>, origin <chr>, dest <chr>,
+      #   air_time <dbl>, distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>,
+      #   year <int>, month <int>, day <int>
+
+  - Okay this NOT works only for one value, but all after that seem to
+    be ignored.
+
+- I checked the documentation and it seems like I should put all those
+  into a vector like so:
+
+  ``` r
+  flights |>
+    select(!c(year:day, sched_dep_time, 
+           sched_arr_time, carrier:time_hour))
+  ```
+
+      # A tibble: 336,776 × 4
+         dep_time dep_delay arr_time arr_delay
+            <int>     <dbl>    <int>     <dbl>
+       1      517         2      830        11
+       2      533         4      850        20
+       3      542         2      923        33
+       4      544        -1     1004       -18
+       5      554        -6      812       -25
+       6      554        -4      740        12
+       7      555        -5      913        19
+       8      557        -3      709       -14
+       9      557        -3      838        -8
+      10      558        -2      753         8
+      # ℹ 336,766 more rows
+
+- Let’s try these helper functions:
+
+  ``` r
+  flights |>
+    select(starts_with("arr_"), starts_with("dep_"))
+  ```
+
+      # A tibble: 336,776 × 4
+         arr_time arr_delay dep_time dep_delay
+            <int>     <dbl>    <int>     <dbl>
+       1      830        11      517         2
+       2      850        20      533         4
+       3      923        33      542         2
+       4     1004       -18      544        -1
+       5      812       -25      554        -6
+       6      740        12      554        -4
+       7      913        19      555        -5
+       8      709       -14      557        -3
+       9      838        -8      557        -3
+      10      753         8      558        -2
+      # ℹ 336,766 more rows
+
+  - This worked, nice!
+
+  ``` r
+  flights |>
+    select(contains("time"), contains("delay"))
+  ```
+
+      # A tibble: 336,776 × 8
+         dep_time sched_dep_time arr_time sched_arr_time air_time time_hour          
+            <int>          <int>    <int>          <int>    <dbl> <dttm>             
+       1      517            515      830            819      227 2013-01-01 05:00:00
+       2      533            529      850            830      227 2013-01-01 05:00:00
+       3      542            540      923            850      160 2013-01-01 05:00:00
+       4      544            545     1004           1022      183 2013-01-01 05:00:00
+       5      554            600      812            837      116 2013-01-01 06:00:00
+       6      554            558      740            728      150 2013-01-01 05:00:00
+       7      555            600      913            854      158 2013-01-01 06:00:00
+       8      557            600      709            723       53 2013-01-01 06:00:00
+       9      557            600      838            846      140 2013-01-01 06:00:00
+      10      558            600      753            745      138 2013-01-01 06:00:00
+      # ℹ 336,766 more rows
+      # ℹ 2 more variables: dep_delay <dbl>, arr_delay <dbl>
+
+  - Yeah not exactly, but okay.
