@@ -16,6 +16,10 @@ library(nycflights13)
 set_theme(theme_light())
 ```
 
+## Link to website
+
+- <https://r4ds.hadley.nz/data-transform.html>
+
 ## Introduction
 
 Take a look at the `flights` dataframe, by either `glimpse()` or just typing the object directly. I will use the former:
@@ -170,9 +174,9 @@ flights |>
 flights |> 
   count(tailnum, dest, sort = TRUE)
 ```
-## Exercises
+### Exercises
 
-### 1.
+#### 1.
 
 > In a single pipeline for each condition, find all flights that meet the condition:
 >
@@ -244,7 +248,7 @@ flights |>
 
 ```
 
-### 2.
+#### 2.
 
 > Sort `flights` to find the flights with the longest departure delays. Find the flights that left earliest in the morning.
 
@@ -258,7 +262,7 @@ flights |>
   arrange(dep_time)
 ```
 
-### 3.
+#### 3.
 
 > Sort `flights` to find the fastest flights. (Hint: Try including a math calculation inside of your function)
 
@@ -284,7 +288,7 @@ flights |>
 flights |> 
   arrange(miles_minutes = distance / air_time) |> 
   select(distance, air_time, miles_minutes)
-### No :-)
+#### No :-)
 
 ## But I can make it miles per hour at least
 flights |> 
@@ -293,7 +297,7 @@ flights |>
   select(distance, air_time, miles_hour)
 ```
 
-### 4.
+#### 4.
 
 > Was there a flight on every day of 2013?
 
@@ -313,7 +317,7 @@ flights |>
   nrow()
 ```
 
-### 5.
+#### 5.
 
 > Which flights traveled the farthest distance? Which traveled the least distance?
 
@@ -329,7 +333,7 @@ flights |>
   select(flight, distance)
 ```
 
-### 6.
+#### 6.
 
 > Does it matter what order you used `filter()` and `arrange()` if you're using both? Why/Why not? Think about the results and how much work the functions would have to do.
 
@@ -342,5 +346,44 @@ flights |>
   filter(carrier == "AA") |> 
   arrange(desc(arr_delay)) |> 
   select(arr_delay)
+```
+
+## Columns
+
+### `mutate()`
+
+- Adds new columns that are calculated with values from existing ones.
+
+For example, we could compute the `speed` and how much time each flight made up, i. e. `gain`ed:
+```{r}
+#| label: gain and speed
+
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60
+  )
+```
+
+This is hard to see because by default the new columns are added to the 'right' of the dataframe. `.before` as an argument changes this to the 'left':
+```{r}
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .before = 1
+  )
+```
+Note that `.before` is written with the `.` to identify it as an argument of the function instead of a new column to be created. Also note how it takes either numbers as the position, or the actual name of a row as a variable.
+You can also use `.after` in an analog manner.
+Ahh, and there is `.keep`, for which you can set `"used"` to keep only the newly created columns and those relevant to these calculations. Also the other values for `.keep` are helpful for tidy output.
+```{r}
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
 ```
 

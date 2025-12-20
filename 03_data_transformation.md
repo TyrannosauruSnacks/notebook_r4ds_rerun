@@ -9,6 +9,10 @@ library(nycflights13)
 set_theme(theme_light())
 ```
 
+## Link to website
+
+- <https://r4ds.hadley.nz/data-transform.html>
+
 ## Introduction
 
 Take a look at the `flights` dataframe, by either `glimpse()` or just
@@ -400,9 +404,9 @@ flights |>
     10 N319AA  LAX     257
     # ℹ 44,455 more rows
 
-## Exercises
+### Exercises
 
-### 1.
+#### 1.
 
 > In a single pipeline for each condition, find all flights that meet
 > the condition:
@@ -698,7 +702,7 @@ flights |>
     # ℹ 5 variables: dep_delay <dbl>, arr_delay <dbl>, time_won <dbl>,
     #   won_30 <lgl>, won_30_alt <lgl>
 
-### 2.
+#### 2.
 
 > Sort `flights` to find the flights with the longest departure delays.
 > Find the flights that left earliest in the morning.
@@ -751,7 +755,7 @@ flights |>
     #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
     #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
-### 3.
+#### 3.
 
 > Sort `flights` to find the fastest flights. (Hint: Try including a
 > math calculation inside of your function)
@@ -837,7 +841,7 @@ flights |>
     ✖ Column `miles_minutes` doesn't exist.
 
 ``` r
-### No :-)
+#### No :-)
 
 ## But I can make it miles per hour at least
 flights |> 
@@ -861,7 +865,7 @@ flights |>
     10     1598      173       554.
     # ℹ 336,766 more rows
 
-### 4.
+#### 4.
 
 > Was there a flight on every day of 2013?
 
@@ -917,7 +921,7 @@ flights |>
 
     [1] 365
 
-### 5.
+#### 5.
 
 > Which flights traveled the farthest distance? Which traveled the least
 > distance?
@@ -966,7 +970,7 @@ flights |>
     10   4619       80
     # ℹ 336,766 more rows
 
-### 6.
+#### 6.
 
 > Does it matter what order you used `filter()` and `arrange()` if
 > you’re using both? Why/Why not? Think about the results and how much
@@ -999,3 +1003,102 @@ flights |>
      9       645
     10       614
     # ℹ 32,719 more rows
+
+## Columns
+
+### `mutate()`
+
+- Adds new columns that are calculated with values from existing ones.
+
+For example, we could compute the `speed` and how much time each flight
+made up, i. e. `gain`ed:
+
+``` r
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60
+  )
+```
+
+    # A tibble: 336,776 × 21
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013     1     1      517            515         2      830            819
+     2  2013     1     1      533            529         4      850            830
+     3  2013     1     1      542            540         2      923            850
+     4  2013     1     1      544            545        -1     1004           1022
+     5  2013     1     1      554            600        -6      812            837
+     6  2013     1     1      554            558        -4      740            728
+     7  2013     1     1      555            600        -5      913            854
+     8  2013     1     1      557            600        -3      709            723
+     9  2013     1     1      557            600        -3      838            846
+    10  2013     1     1      558            600        -2      753            745
+    # ℹ 336,766 more rows
+    # ℹ 13 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+    #   hour <dbl>, minute <dbl>, time_hour <dttm>, gain <dbl>, speed <dbl>
+
+This is hard to see because by default the new columns are added to the
+‘right’ of the dataframe. `.before` as an argument changes this to the
+‘left’:
+
+``` r
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    speed = distance / air_time * 60,
+    .before = 1
+  )
+```
+
+    # A tibble: 336,776 × 21
+        gain speed  year month   day dep_time sched_dep_time dep_delay arr_time
+       <dbl> <dbl> <int> <int> <int>    <int>          <int>     <dbl>    <int>
+     1    -9  370.  2013     1     1      517            515         2      830
+     2   -16  374.  2013     1     1      533            529         4      850
+     3   -31  408.  2013     1     1      542            540         2      923
+     4    17  517.  2013     1     1      544            545        -1     1004
+     5    19  394.  2013     1     1      554            600        -6      812
+     6   -16  288.  2013     1     1      554            558        -4      740
+     7   -24  404.  2013     1     1      555            600        -5      913
+     8    11  259.  2013     1     1      557            600        -3      709
+     9     5  405.  2013     1     1      557            600        -3      838
+    10   -10  319.  2013     1     1      558            600        -2      753
+    # ℹ 336,766 more rows
+    # ℹ 12 more variables: sched_arr_time <int>, arr_delay <dbl>, carrier <chr>,
+    #   flight <int>, tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>,
+    #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+
+Note that `.before` is written with the `.` to identify it as an
+argument of the function instead of a new column to be created. Also
+note how it takes either numbers as the position, or the actual name of
+a row as a variable. You can also use `.after` in an analog manner. Ahh,
+and there is `.keep`, for which you can set `"used"` to keep only the
+newly created columns and those relevant to these calculations. Also the
+other values for `.keep` are helpful for tidy output.
+
+``` r
+flights |> 
+  mutate(
+    gain = dep_delay - arr_delay,
+    hours = air_time / 60,
+    gain_per_hour = gain / hours,
+    .keep = "used"
+  )
+```
+
+    # A tibble: 336,776 × 6
+       dep_delay arr_delay air_time  gain hours gain_per_hour
+           <dbl>     <dbl>    <dbl> <dbl> <dbl>         <dbl>
+     1         2        11      227    -9 3.78          -2.38
+     2         4        20      227   -16 3.78          -4.23
+     3         2        33      160   -31 2.67         -11.6 
+     4        -1       -18      183    17 3.05           5.57
+     5        -6       -25      116    19 1.93           9.83
+     6        -4        12      150   -16 2.5           -6.4 
+     7        -5        19      158   -24 2.63          -9.11
+     8        -3       -14       53    11 0.883         12.5 
+     9        -3        -8      140     5 2.33           2.14
+    10        -2         8      138   -10 2.3           -4.35
+    # ℹ 336,766 more rows
