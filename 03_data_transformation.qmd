@@ -633,7 +633,219 @@ flights |>
   arrange(arr_delay)
 ```
 
+## The pipe
+
+The pipe `|>` is now native to R and can be used interchangeably with the `%>%` margrittr pipe operator, where the former is recommended.
+
+## Groups
+
+### `group_by()`
+
+  - Divides the dataset into meaningful subgroups.
+  - Does not change the data as is.
+  
+```{r}
+flights |> 
+  group_by(month)
+```
 
 
+### `summarize()`
+
+  - Does group wise calculations.
+  - Used in conjunction with `group_by()`.
+  
+```{r}
+flights |> 
+  group_by(month) |> 
+  summarize(
+    avg_delay = mean(dep_delay)
+  )
+```
+
+  - `mean()` gives `NA` if there are missing values, use `na.rm = TRUE` to ignore those for the calculation.
+  
+```{r}
+flights |> 
+  group_by(month) |> 
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE)
+  )
+```
+  - `n()` can become an instinctive part of calling `summarize()`, at least when it comes to data exploration
+```{r}
+flights |> 
+  group_by(month) |> 
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    n = n()
+  )
+```
+### The `slice_` functions
+
+  - A group of functions to get specific rows of a dataset.
+  - Works well with `group_by()`.
+  - Use argument `prop =` to get results in proportion to number of observations for each group
+
+Get the most delayed flight for each destination:
+```{r}
+flights |> 
+  group_by(dest) |> 
+  slice_max(arr_delay, n = 1) |> 
+  relocate(dest, arr_delay)
+```
+  - Ties are kept by default, so there might be more rows than groups.
+  
+### Grouping by multiple variables
+
+  - Multiple variables are subgrouped in the given order.
+  - `summarize()` drops one grouping layer by default.
+    - You will get a message though, and for later code should define the behaviour you want.
+  
+```{r}
+daily <- flights |> 
+  group_by(year, month, day)
+daily
+
+daily_flights <- daily |> 
+  summarize(n = n())
+daily_flights
+
+daily_flights <- daily |> 
+  summarize(n = n(),
+            .groups = "drop")
+daily_flights
+```
+
+### Ungrouping
+
+  - Use `ungroup()` to remove grouping outside of `summarize()`
+
+### `.by`
+
+  - Alternative to `group_by()`.
+  - Is a special argument within `summarize()` and other functions.
+    - Several groups then need to be in a vector `c()` though.
+  
+```{r}
+flights |> 
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(origin, dest)
+  )
+```
+
+### Exercises
+
+#### 1.
+
+> Which carrier has the worst average delays? Challenge: can you disentangle the effect of bad airports vs. bad carriers? Why/Why not? (Hint: think about `flights |> group_by(carrier, dest) |> summarize(n())`)
+
+Find the the carrier with the worst *average* delays:
+
+```{r}
+flights |> 
+  # Get the average delay per carrier
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = carrier) |> 
+  # Slice the row with the most delay
+  slice_max(n = 1, avg_delay)
+```
+Carrier `F9` has the most delay.
+
+Disentangle bad carriers from bad airports:
+
+```{r}
+flights |> 
+  # Get average delay per carrier and destination
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = c(carrier, dest))
+```
+I think I would need to compare the average delay per destination with the average delay per carrier of that destination to see whether the destinations are always late, or the carriers.
+
+```{r}
+flights |> 
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = c(dest, carrier)) |> 
+  # Get the destination and carrier combo with the worst delay
+  slice_max(avg_delay, n = 10)
+```
+Now we see that for this combination there are only two records, so this might just have been bad luck. I want to check how "STL" and "UA" do on their own overall.
+```{r}
+# Get the 10 most delayed destinations
+flights |> 
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = dest) |> 
+  slice_max(avg_delay, n = 10)
+
+# Get the 10 most delayed carriers
+flights |> 
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = carrier) |> 
+  slice_max(avg_delay, n = 10)
+```
+
+Now we know that UA is one of the most delayed carriers, while the destination STL is not in its top 10. I think the catch is, that if there is a big airline frequenting an airport more often than other airlines It could be responsible for a lot of delay on that airport, even though that airport would otherwise do fine. And also the other way around. So there would have to be some proportionality of that delay. Man that's to high up for my brain.
+
+What I could do is at least check, how often either an airport, or an carrier is in the  of a given group. Let's see:
+```{r}
+flights |> 
+  # Get average delay per of all the carriers for all the destinations
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = c(dest, carrier)) |> 
+  # Get the entries with the most average delay for each destination
+  slice_max(avg_delay, by = dest, n = 1) |> 
+  # Get for how many destinations each carrier is the most delayed
+  count(carrier, sort = TRUE)
+```
+We see that EV has the most average delay for the largest number of destinations.
+
+Let's do it also for destinations:
+```{r}
+flights |> 
+  # Get average delay for all the destinations of each carrier
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            n = n(),
+            .by = c(carrier, dest)) |> 
+  # Get the entries with the most average delay for each destination
+  slice_max(avg_delay, by = carrier, n = 1) |> 
+  # Get for how many carriers each destination is the most delayed
+  count(dest, sort = TRUE)
+```
+
+Ah, because there only a few airlines this exploration is not as useful, because there are to few observations to actually see a difference. We could go into the top ten and see what that does for us:
+
+```{r}
+flights |>
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(carrier, dest)
+  ) |>
+  slice_max(avg_delay, by = carrier, n = 10) |>
+  count(dest, sort = TRUE)
+```
+Lastly we can check whether EV and ORD are actually causing each others delay because they do a lot of flights together:
+```{r}
+# How often is ORD a destination of a certain carrier
+flights |> 
+  filter(dest == "ORD") |> 
+  summarize(n = n(),
+            .by = carrier)
 
 
+# How many flights of EV are there in general
+flights |> 
+  filter(carrier == "EV") |> 
+  count()
+```
+
+So let's summarize. I think that the carrier with the most delay is probably EV, whereas the destination with the most delay is probably ORD, but for that the latter the data as I presented it more sparse. But EV is generally late despite only having had two flights to ORD as opposed to the other 54,171 to other airports.
+Last
