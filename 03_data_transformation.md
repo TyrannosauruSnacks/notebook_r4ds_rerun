@@ -19,7 +19,24 @@ Max Hachemeister
 ## Prerequisites
 
 ``` r
+#| label: setup
+#| output: false
+
 library(tidyverse)
+```
+
+    ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ✔ dplyr     1.1.4     ✔ readr     2.1.5
+    ✔ forcats   1.0.1     ✔ stringr   1.5.2
+    ✔ ggplot2   4.0.0     ✔ tibble    3.3.0
+    ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+    ✔ purrr     1.1.0     
+    ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ✖ dplyr::filter() masks stats::filter()
+    ✖ dplyr::lag()    masks stats::lag()
+    ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
 library(nycflights13)
 set_theme(theme_light())
 ```
@@ -1295,7 +1312,7 @@ represent hours and minutes, therefore the difference in minutes between
 554 and 600 would be -6 instead of -46.  
 Okay, but let’s not get caught up here an move on to the next question.
 
-2.  
+#### 2.
 
 > Brainstorm as many ways as possible to select `dep_time`, `dep_delay`,
 > `arr_time`, and `arr_delay` from `flights`.
@@ -1413,3 +1430,203 @@ Okay, but let’s not get caught up here an move on to the next question.
       # ℹ 2 more variables: dep_delay <dbl>, arr_delay <dbl>
 
   - Yeah not exactly, but okay.
+
+- I think I could pipe this aswell
+
+  ``` r
+      flights |>
+        select(ends_with("_time"), ends_with("_delay")) |>
+        select(!contains(c("sched", "air")))
+  ```
+
+      # A tibble: 336,776 × 4
+         dep_time arr_time dep_delay arr_delay
+            <int>    <int>     <dbl>     <dbl>
+       1      517      830         2        11
+       2      533      850         4        20
+       3      542      923         2        33
+       4      544     1004        -1       -18
+       5      554      812        -6       -25
+       6      554      740        -4        12
+       7      555      913        -5        19
+       8      557      709        -3       -14
+       9      557      838        -3        -8
+      10      558      753        -2         8
+      # ℹ 336,766 more rows
+
+  - A well, I guess this could go on for quite a while. I liked the
+    `starts_with()` version the most.
+
+#### 4.
+
+> What does the `any_of()` function do? Why might it be helpful in
+> conjunction with this vector?
+
+> ``` r
+> variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+> ```
+
+So `any_of()` is a selection helper for the `select()` or `relocate()`
+functions, especially deselecting unwanted columns. There is also
+`all_of()`, which is more for direct selection, as it gives an error, if
+target columns are missing.
+
+So this here would be the intended use:
+
+``` r
+flights |>
+  select(!any_of(variables))
+```
+
+    # A tibble: 336,776 × 14
+       dep_time sched_dep_time arr_time sched_arr_time carrier flight tailnum origin
+          <int>          <int>    <int>          <int> <chr>    <int> <chr>   <chr> 
+     1      517            515      830            819 UA        1545 N14228  EWR   
+     2      533            529      850            830 UA        1714 N24211  LGA   
+     3      542            540      923            850 AA        1141 N619AA  JFK   
+     4      544            545     1004           1022 B6         725 N804JB  JFK   
+     5      554            600      812            837 DL         461 N668DN  LGA   
+     6      554            558      740            728 UA        1696 N39463  EWR   
+     7      555            600      913            854 B6         507 N516JB  EWR   
+     8      557            600      709            723 EV        5708 N829AS  LGA   
+     9      557            600      838            846 B6          79 N593JB  JFK   
+    10      558            600      753            745 AA         301 N3ALAA  LGA   
+    # ℹ 336,766 more rows
+    # ℹ 6 more variables: dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
+    #   minute <dbl>, time_hour <dttm>
+
+Which gives me a tibble without any of the `variables`.
+
+#### 5.
+
+> Does the result of running the following code surprise you? How do the
+> select helpers deal with upper and lower case by default? How can you
+> change that default?
+
+> ``` r
+> flights |> select(contains("TIME"))
+> ```
+
+So `contains()` ignores case. How could I change this? The documentation
+says there is a `ignore.case` option.
+
+``` r
+flights |> select(contains("TIME", ignore.case = FALSE))
+```
+
+    # A tibble: 336,776 × 0
+
+#### 6.
+
+> Rename `air_time` to `air_time_min` to indicate units of measurement
+> and move it to the beginning of the data frame.
+
+``` r
+flights |> 
+  rename(air_time_min = air_time)
+```
+
+    # A tibble: 336,776 × 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013     1     1      517            515         2      830            819
+     2  2013     1     1      533            529         4      850            830
+     3  2013     1     1      542            540         2      923            850
+     4  2013     1     1      544            545        -1     1004           1022
+     5  2013     1     1      554            600        -6      812            837
+     6  2013     1     1      554            558        -4      740            728
+     7  2013     1     1      555            600        -5      913            854
+     8  2013     1     1      557            600        -3      709            723
+     9  2013     1     1      557            600        -3      838            846
+    10  2013     1     1      558            600        -2      753            745
+    # ℹ 336,766 more rows
+    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time_min <dbl>,
+    #   distance <dbl>, hour <dbl>, minute <dbl>, time_hour <dttm>
+
+Ah, I can’t see the row. Let’s do it directly within the `select()`
+function:
+
+``` r
+flights |> 
+  select(air_time_min = air_time)
+```
+
+    # A tibble: 336,776 × 1
+       air_time_min
+              <dbl>
+     1          227
+     2          227
+     3          160
+     4          183
+     5          116
+     6          150
+     7          158
+     8           53
+     9          140
+    10          138
+    # ℹ 336,766 more rows
+
+#### 6.
+
+> Why doesn’t the following work, and what does the error mean?
+
+> ``` r
+> flights |> 
+>   select(tailnum) |> 
+>   arrange(arr_delay)
+> ```
+>
+>     Error in `arrange()`:
+>     ℹ In argument: `..1 = arr_delay`.
+>     Caused by error:
+>     ! object 'arr_delay' not found
+
+This does not work, because after `select(tailnum)` there is no
+`arr_delay` column, and therefore `arrange()` gives an error. If I
+wanted to make this work I should arrange first:
+
+``` r
+flights |> 
+  arrange(arr_delay) |> 
+  select(tailnum)
+```
+
+    # A tibble: 336,776 × 1
+       tailnum
+       <chr>  
+     1 N843VA 
+     2 N840VA 
+     3 N851UA 
+     4 N3KCAA 
+     5 N551AS 
+     6 N24212 
+     7 N3760C 
+     8 N806UA 
+     9 N805JB 
+    10 N855VA 
+    # ℹ 336,766 more rows
+
+But I think it’s more sensible to leave `arr_delay` in if i arrange by
+that:
+
+``` r
+flights |> 
+  select(tailnum, arr_delay) |> 
+  arrange(arr_delay)
+```
+
+    # A tibble: 336,776 × 2
+       tailnum arr_delay
+       <chr>       <dbl>
+     1 N843VA        -86
+     2 N840VA        -79
+     3 N851UA        -75
+     4 N3KCAA        -75
+     5 N551AS        -74
+     6 N24212        -73
+     7 N3760C        -71
+     8 N806UA        -71
+     9 N805JB        -71
+    10 N855VA        -70
+    # ℹ 336,766 more rows

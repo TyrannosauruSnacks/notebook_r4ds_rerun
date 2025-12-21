@@ -10,6 +10,7 @@ editor: source
 ## Prerequisites
 
 ```{r}
+
 #| label: setup
 #| output: false
 
@@ -491,7 +492,7 @@ flights |>
 Aha interesting, so it's not simple subtraction because these numbers represent hours and minutes, therefore the difference in minutes between 554 and 600 would be -6 instead of -46.  
 Okay, but let's not get caught up here an move on to the next question.
 
-2. 
+#### 2. 
 
 > Brainstorm as many ways as possible to select `dep_time`, `dep_delay`, `arr_time`, and `arr_delay` from `flights`.
 
@@ -535,9 +536,104 @@ Okay, but let's not get caught up here an move on to the next question.
     - This worked, nice!
     
     ```{r}
+	
     flights |>
       select(contains("time"), contains("delay"))
+    
     ```
     - Yeah not exactly, but okay.
+
+  - I think I could pipe this aswell
+
+	```{r}
+
+    flights |>
+      select(ends_with("_time"), ends_with("_delay")) |>
+      select(!contains(c("sched", "air")))
     
-    
+	```
+	- A well, I guess this could go on for quite a while. I liked the `starts_with()` version the most.
+
+#### 4.
+
+> What does the `any_of()` function do? Why might it be helpful in conjunction with this vector?
+>
+> ```{r}
+>
+> variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+>
+> ```
+
+So `any_of()` is a selection helper for the `select()` or `relocate()` functions, especially deselecting unwanted columns. There is also `all_of()`, which is more for direct selection, as it gives an error, if target columns are missing. 
+
+So this here would be the intended use:
+
+```{r}
+
+flights |>
+  select(!any_of(variables))
+
+```
+
+Which gives me a tibble without any of the `variables`.
+
+#### 5. 
+
+> Does the result of running the following code surprise you? How do the select helpers deal with upper and lower case by default? How can you change that default?
+>  
+> ```{r}
+> #| results: false
+> flights |> select(contains("TIME"))
+> ```
+
+So `contains()` ignores case. How could I change this?
+The documentation says there is a `ignore.case` option.
+
+```{r}
+flights |> select(contains("TIME", ignore.case = FALSE))
+```
+
+#### 6.
+
+> Rename `air_time` to `air_time_min` to indicate units of measurement and move it to the beginning of the data frame.
+
+```{r}
+flights |> 
+  rename(air_time_min = air_time)
+```
+Ah, I can't see the row. Let's do it directly within the `select()` function:
+
+```{r}
+flights |> 
+  select(air_time_min = air_time)
+```
+
+#### 6.
+
+> Why doesn't the following work, and what does the error mean?
+>
+> ```{r}
+> #| error: true
+> flights |> 
+>   select(tailnum) |> 
+>   arrange(arr_delay)
+> ```
+
+This does not work, because after `select(tailnum)` there is no `arr_delay` column, and therefore `arrange()` gives an error. If I wanted to make this work I should arrange first:
+```{r}
+flights |> 
+  arrange(arr_delay) |> 
+  select(tailnum)
+```
+
+But I think it's more sensible to leave `arr_delay` in if i arrange by that:
+```{r}
+flights |> 
+  select(tailnum, arr_delay) |> 
+  arrange(arr_delay)
+```
+
+
+
+
+
