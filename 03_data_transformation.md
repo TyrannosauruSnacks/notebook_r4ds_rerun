@@ -2187,4 +2187,379 @@ So let’s summarize. I think that the carrier with the most delay is
 probably EV, whereas the destination with the most delay is probably
 ORD, but for that the latter the data as I presented it more sparse. But
 EV is generally late despite only having had two flights to ORD as
-opposed to the other 54,171 to other airports. Last
+opposed to the other 54,171 to other airports.
+
+#### 2.
+
+> Find the flights that are most delayed upon departure to each
+> destination.
+
+``` r
+# Slice the maximum departure delay, by destination
+flights |> 
+  slice_max(dep_delay, by = dest)
+```
+
+    # A tibble: 105 × 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013     4    19      606           1725       761      923           2020
+     2  2013    12     5      756           1700       896     1058           2020
+     3  2013     7    19       30           2050       220      407             42
+     4  2013     7    22     2257            759       898      121           1026
+     5  2013     1    10     1121           1635      1126     1239           1810
+     6  2013     4    19     2346           1700       406      300           2015
+     7  2013     7    27     1456            600       536     1649            712
+     8  2013     4    19      758           1925       753     1049           2225
+     9  2013     7    31     2231           1440       471      118           1749
+    10  2013     4    10     1100           1900       960     1342           2211
+    # ℹ 95 more rows
+    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+    #   hour <dbl>, minute <dbl>, time_hour <dttm>
+
+``` r
+# Check whether there really are around 105 destinations
+flights |> 
+  count(dest)
+```
+
+    # A tibble: 105 × 2
+       dest      n
+       <chr> <int>
+     1 ABQ     254
+     2 ACK     265
+     3 ALB     439
+     4 ANC       8
+     5 ATL   17215
+     6 AUS    2439
+     7 AVL     275
+     8 BDL     443
+     9 BGR     375
+    10 BHM     297
+    # ℹ 95 more rows
+
+#### 3.
+
+> How do delays vary over the course of the day? Illustrate your answer
+> with a plot.
+
+``` r
+# Get avg delay per hour
+flights |> 
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE),
+            .by = hour) |> 
+  # Lineplot with avg_delay over hours
+  ggplot(aes(hour, avg_delay)) +
+  geom_line() +
+  labs(x = "Time of Day (Hours)",
+       y = "Mean delay (Minutes)",
+       title = "Hourly timeseries of average departure delay",
+       caption = "No flights between 0 and 4 o'clock")
+```
+
+    Warning: Removed 1 row containing missing values or values outside the scale range
+    (`geom_line()`).
+
+![](03_data_transformation_files/figure-commonmark/unnamed-chunk-65-1.png)
+
+The most average delay can be observed around 19 - 21 o’clock. It ramps
+up to that throughout the day and decays fast right after.
+
+#### 4.
+
+> What happens if you supply a negative `n` to `slice_min()` and
+> friends?
+
+Let’s try `slice_min()`:
+
+``` r
+flights |> 
+  slice_min(dep_delay, n = -2)
+```
+
+    # A tibble: 336,776 × 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013    12     7     2040           2123       -43       40           2352
+     2  2013     2     3     2022           2055       -33     2240           2338
+     3  2013    11    10     1408           1440       -32     1549           1559
+     4  2013     1    11     1900           1930       -30     2233           2243
+     5  2013     1    29     1703           1730       -27     1947           1957
+     6  2013     8     9      729            755       -26     1002            955
+     7  2013    10    23     1907           1932       -25     2143           2143
+     8  2013     3    30     2030           2055       -25     2213           2250
+     9  2013     3     2     1431           1455       -24     1601           1631
+    10  2013     5     5      934            958       -24     1225           1309
+    # ℹ 336,766 more rows
+    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+    #   hour <dbl>, minute <dbl>, time_hour <dttm>
+
+Okay, I guess the negative `n` removes the rows with the lowest value,
+but let’s confirm that:
+
+``` r
+# Get a bigger slice from flights
+flights_sample <- flights |> 
+    slice_min(dep_delay, n = 10,
+              # Without ties so actually just 10 results
+              with_ties = FALSE
+    )
+flights_sample
+```
+
+    # A tibble: 10 × 19
+        year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+       <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+     1  2013    12     7     2040           2123       -43       40           2352
+     2  2013     2     3     2022           2055       -33     2240           2338
+     3  2013    11    10     1408           1440       -32     1549           1559
+     4  2013     1    11     1900           1930       -30     2233           2243
+     5  2013     1    29     1703           1730       -27     1947           1957
+     6  2013     8     9      729            755       -26     1002            955
+     7  2013    10    23     1907           1932       -25     2143           2143
+     8  2013     3    30     2030           2055       -25     2213           2250
+     9  2013     3     2     1431           1455       -24     1601           1631
+    10  2013     5     5      934            958       -24     1225           1309
+    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+    #   hour <dbl>, minute <dbl>, time_hour <dttm>
+
+``` r
+# Now slice -1, to get 9 rows
+flights_sample |> 
+  slice_min(dep_delay, n = -1,
+            with_ties = FALSE)
+```
+
+    # A tibble: 9 × 19
+       year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+      <int> <int> <int>    <int>          <int>     <dbl>    <int>          <int>
+    1  2013    12     7     2040           2123       -43       40           2352
+    2  2013     2     3     2022           2055       -33     2240           2338
+    3  2013    11    10     1408           1440       -32     1549           1559
+    4  2013     1    11     1900           1930       -30     2233           2243
+    5  2013     1    29     1703           1730       -27     1947           1957
+    6  2013     8     9      729            755       -26     1002            955
+    7  2013    10    23     1907           1932       -25     2143           2143
+    8  2013     3    30     2030           2055       -25     2213           2250
+    9  2013     3     2     1431           1455       -24     1601           1631
+    # ℹ 11 more variables: arr_delay <dbl>, carrier <chr>, flight <int>,
+    #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
+    #   hour <dbl>, minute <dbl>, time_hour <dttm>
+
+Interesting, so `slice_min()` with a negative `n` removes the row with
+the *highest* value. Let’s make it more obvious:
+
+``` r
+# Create some test data
+test  <- tibble(a = 1:3)
+test
+```
+
+    # A tibble: 3 × 1
+          a
+      <int>
+    1     1
+    2     2
+    3     3
+
+``` r
+# Slice min
+test |> 
+  slice_min(a, n = -1)
+```
+
+    # A tibble: 2 × 1
+          a
+      <int>
+    1     1
+    2     2
+
+Will test the rest of the `slice_` family:
+
+``` r
+# Slice max
+test |> 
+  slice_max(a, n = -1)
+```
+
+    # A tibble: 2 × 1
+          a
+      <int>
+    1     3
+    2     2
+
+``` r
+# Slice head
+test |> 
+  slice_head(n = -1)
+```
+
+    # A tibble: 2 × 1
+          a
+      <int>
+    1     1
+    2     2
+
+``` r
+# Slice tail
+test |> 
+  slice_tail(n = -1)
+```
+
+    # A tibble: 2 × 1
+          a
+      <int>
+    1     2
+    2     3
+
+``` r
+# Slice sample
+test |> 
+  slice_sample(n = -1)
+```
+
+    # A tibble: 2 × 1
+          a
+      <int>
+    1     2
+    2     1
+
+Okay, to summarize: The `slice_` family with a negative value for `n`
+will *remove* the number of rows from the data in the *opposite* manner
+it would *extract* them with a positive value. So with a negative value
+for `n` `slice_min()` *removes* the rows with the **max** values,
+whereas `slice_head()` *removes* the **last** rows.
+
+#### 5.
+
+> Explain what `count()` does in terms of the dplyr verbs you just
+> learned. What does the `sort` argument to `count()` do?
+
+The original `count()`, with `sort`:
+
+``` r
+flights |> 
+  count(carrier,
+        sort = TRUE)
+```
+
+    # A tibble: 16 × 2
+       carrier     n
+       <chr>   <int>
+     1 UA      58665
+     2 B6      54635
+     3 EV      54173
+     4 DL      48110
+     5 AA      32729
+     6 MQ      26397
+     7 US      20536
+     8 9E      18460
+     9 WN      12275
+    10 VX       5162
+    11 FL       3260
+    12 AS        714
+    13 F9        685
+    14 YV        601
+    15 HA        342
+    16 OO         32
+
+The same can be achieved with:
+
+``` r
+flights |> 
+  group_by(carrier) |> 
+  summarize(n = n()) |> 
+  arrange(desc(n))
+```
+
+    # A tibble: 16 × 2
+       carrier     n
+       <chr>   <int>
+     1 UA      58665
+     2 B6      54635
+     3 EV      54173
+     4 DL      48110
+     5 AA      32729
+     6 MQ      26397
+     7 US      20536
+     8 9E      18460
+     9 WN      12275
+    10 VX       5162
+    11 FL       3260
+    12 AS        714
+    13 F9        685
+    14 YV        601
+    15 HA        342
+    16 OO         32
+
+So `count()` groups the data an then does a count for those groups. The
+`sort` argument works the the other way around to `arrange()`, i. e. if
+`sort` is `TRUE` it will arrange the data in *descending* order, while
+the default for arrange is *ascending* order.
+
+So we can remember that the *default* sorting is in **ascending** order.
+(Because the *default* for `count()` is `sort = FALSE`)
+
+#### 6.
+
+> Suppose we have the following tiny data frame:
+
+``` r
+df <- tibble(
+  x = 1:5,
+  y = c("a", "b", "a", "a", "b"),
+  z = c("K", "K", "L", "L", "K")
+  )
+```
+
+> 1.  Write down what you think the output will look like, then check if
+>     you were correct, and describe what `group_by()` does.
+
+This will result in a dataframe with two groups, namely `a` and `b`
+according to the values in `y`. So `group_by()` gets all the unique
+values (combinations) of the defined columns and groups the dataframe
+accordingly.
+
+``` r
+df |> 
+  group_by(y)
+```
+
+    # A tibble: 5 × 3
+    # Groups:   y [2]
+          x y     z    
+      <int> <chr> <chr>
+    1     1 a     K    
+    2     2 b     K    
+    3     3 a     L    
+    4     4 a     L    
+    5     5 b     K    
+
+> 2.  Write down what you think the output will look like, then check if
+>     you were correct, and describe what `arrange()` does. Also,
+>     comment on how it’s different from the `group_by()` in part (a).
+
+`arrange(y)` will result in a dataframe where all the rows will be
+arranged in ascending order of the values in the `y` column, meaning
+that the `a`s come first and then the `b`s. But yeah, what does it do,
+when there are multiple same values to arrange by:
+
+``` r
+df |> 
+  arrange(y)
+```
+
+    # A tibble: 5 × 3
+          x y     z    
+      <int> <chr> <chr>
+    1     1 a     K    
+    2     3 a     L    
+    3     4 a     L    
+    4     2 b     K    
+    5     5 b     K    
+
+Ah, It does it in the order it finds the entries, as you can see
+comparing the `x` columns.
