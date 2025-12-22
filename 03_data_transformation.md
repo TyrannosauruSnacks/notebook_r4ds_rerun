@@ -24,6 +24,8 @@ Max Hachemeister
   - [Ungrouping](#ungrouping)
   - [`.by`](#by)
   - [Exercises](#exercises-2)
+- [Case study: aggregates and sample
+  size](#case-study-aggregates-and-sample-size)
 
 ## Prerequisites
 
@@ -447,11 +449,8 @@ flights |>
 
 ### Exercises
 
-#### 1.
+#### 1. In a single pipeline for each condition, find all flights that meet the condition:
 
-> In a single pipeline for each condition, find all flights that meet
-> the condition:
->
 > - Had an arrival delay of two or more hours
 > - Flew to Houston (`IAH` or `HOU`)
 > - Were operated by United, American, or Delta
@@ -743,10 +742,7 @@ flights |>
     # ℹ 5 variables: dep_delay <dbl>, arr_delay <dbl>, time_won <dbl>,
     #   won_30 <lgl>, won_30_alt <lgl>
 
-#### 2.
-
-> Sort `flights` to find the flights with the longest departure delays.
-> Find the flights that left earliest in the morning.
+#### 2. Sort `flights` to find the flights with the longest departure delays. Find the flights that left earliest in the morning.
 
 ``` r
 # Flights with the longest delay
@@ -796,10 +792,7 @@ flights |>
     #   tailnum <chr>, origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>,
     #   hour <dbl>, minute <dbl>, time_hour <dttm>
 
-#### 3.
-
-> Sort `flights` to find the fastest flights. (Hint: Try including a
-> math calculation inside of your function)
+#### 3. Sort `flights` to find the fastest flights. (Hint: Try including a math calculation inside of your function)
 
 ``` r
 flights |> 
@@ -906,9 +899,7 @@ flights |>
     10     1598      173       554.
     # ℹ 336,766 more rows
 
-#### 4.
-
-> Was there a flight on every day of 2013?
+#### 4. Was there a flight on every day of 2013?
 
 ``` r
 flights |> 
@@ -962,10 +953,7 @@ flights |>
 
     [1] 365
 
-#### 5.
-
-> Which flights traveled the farthest distance? Which traveled the least
-> distance?
+#### 5. Which flights traveled the farthest distance? Which traveled the least distance?
 
 ``` r
 # Farthest distance
@@ -1011,11 +999,7 @@ flights |>
     10   4619       80
     # ℹ 336,766 more rows
 
-#### 6.
-
-> Does it matter what order you used `filter()` and `arrange()` if
-> you’re using both? Why/Why not? Think about the results and how much
-> work the functions would have to do.
+#### 6. Does it matter what order you used `filter()` and `arrange()` if you’re using both? Why/Why not? Think about the results and how much work the functions would have to do.
 
 `arrange()` will always compare all rows, so If I would `filter()`
 before that, fewer rows will have to be compared by `arrange()`.
@@ -1238,10 +1222,7 @@ But more on that in a later section.
 
 ### Exercises
 
-#### 1.
-
-> Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you
-> expect those three numbers to be related?
+#### 1. Compare `dep_time`, `sched_dep_time`, and `dep_delay`. How would you expect those three numbers to be related?
 
 Take a look at those columns only:
 
@@ -1321,10 +1302,7 @@ represent hours and minutes, therefore the difference in minutes between
 554 and 600 would be -6 instead of -46.  
 Okay, but let’s not get caught up here an move on to the next question.
 
-#### 2.
-
-> Brainstorm as many ways as possible to select `dep_time`, `dep_delay`,
-> `arr_time`, and `arr_delay` from `flights`.
+#### 2. Brainstorm as many ways as possible to select `dep_time`, `dep_delay`, `arr_time`, and `arr_delay` from `flights`.
 
 - Describe them directly:
 
@@ -1466,10 +1444,7 @@ Okay, but let’s not get caught up here an move on to the next question.
   - A well, I guess this could go on for quite a while. I liked the
     `starts_with()` version the most.
 
-#### 4.
-
-> What does the `any_of()` function do? Why might it be helpful in
-> conjunction with this vector?
+#### 4. What does the `any_of()` function do? Why might it be helpful in conjunction with this vector?
 
 > ``` r
 > variables <- c("year", "month", "day", "dep_delay", "arr_delay")
@@ -1506,11 +1481,9 @@ flights |>
 
 Which gives me a tibble without any of the `variables`.
 
-#### 5.
+#### 5. Does the result of running the following code surprise you? How do the select helpers deal with upper and lower case by default? How can you change that default?
 
-> Does the result of running the following code surprise you? How do the
-> select helpers deal with upper and lower case by default? How can you
-> change that default?
+> 
 
 > ``` r
 > flights |> select(contains("TIME"))
@@ -1525,10 +1498,7 @@ flights |> select(contains("TIME", ignore.case = FALSE))
 
     # A tibble: 336,776 × 0
 
-#### 6.
-
-> Rename `air_time` to `air_time_min` to indicate units of measurement
-> and move it to the beginning of the data frame.
+#### 6. Rename `air_time` to `air_time_min` to indicate units of measurement and move it to the beginning of the data frame.
 
 ``` r
 flights |> 
@@ -1576,9 +1546,9 @@ flights |>
     10          138
     # ℹ 336,766 more rows
 
-#### 6.
+#### 6. Why doesn’t the following work, and what does the error mean?
 
-> Why doesn’t the following work, and what does the error mean?
+> 
 
 > ``` r
 > flights |> 
@@ -1915,11 +1885,10 @@ flights |>
 
 ### Exercises
 
-#### 1.
+#### 1. Which carrier has the worst average delays?
 
-> Which carrier has the worst average delays? Challenge: can you
-> disentangle the effect of bad airports vs. bad carriers? Why/Why not?
-> (Hint: think about
+> Challenge: can you disentangle the effect of bad airports vs. bad
+> carriers? Why/Why not? (Hint: think about
 > `flights |> group_by(carrier, dest) |> summarize(n())`)
 
 Find the the carrier with the worst *average* delays:
@@ -2189,10 +2158,7 @@ ORD, but for that the latter the data as I presented it more sparse. But
 EV is generally late despite only having had two flights to ORD as
 opposed to the other 54,171 to other airports.
 
-#### 2.
-
-> Find the flights that are most delayed upon departure to each
-> destination.
+#### 2. Find the flights that are most delayed upon departure to each destination.
 
 ``` r
 # Slice the maximum departure delay, by destination
@@ -2239,10 +2205,7 @@ flights |>
     10 BHM     297
     # ℹ 95 more rows
 
-#### 3.
-
-> How do delays vary over the course of the day? Illustrate your answer
-> with a plot.
+#### 3. How do delays vary over the course of the day? Illustrate your answer with a plot.
 
 ``` r
 # Get avg delay per hour
@@ -2266,10 +2229,7 @@ flights |>
 The most average delay can be observed around 19 - 21 o’clock. It ramps
 up to that throughout the day and decays fast right after.
 
-#### 4.
-
-> What happens if you supply a negative `n` to `slice_min()` and
-> friends?
+#### 4.What happens if you supply a negative `n` to `slice_min()` and friends?
 
 Let’s try `slice_min()`:
 
@@ -2425,7 +2385,7 @@ test |>
           a
       <int>
     1     2
-    2     1
+    2     3
 
 Okay, to summarize: The `slice_` family with a negative value for `n`
 will *remove* the number of rows from the data in the *opposite* manner
@@ -2433,10 +2393,7 @@ it would *extract* them with a positive value. So with a negative value
 for `n` `slice_min()` *removes* the rows with the **max** values,
 whereas `slice_head()` *removes* the **last** rows.
 
-#### 5.
-
-> Explain what `count()` does in terms of the dplyr verbs you just
-> learned. What does the `sort` argument to `count()` do?
+#### 5. Explain what `count()` does in terms of the dplyr verbs you just learned. What does the `sort` argument to `count()` do?
 
 The original `count()`, with `sort`:
 
@@ -2469,9 +2426,9 @@ flights |>
 The same can be achieved with:
 
 ``` r
-flights |> 
-  group_by(carrier) |> 
-  summarize(n = n()) |> 
+flights |>
+  group_by(carrier) |>
+  summarize(n = n()) |>
   arrange(desc(n))
 ```
 
@@ -2503,63 +2460,235 @@ the default for arrange is *ascending* order.
 So we can remember that the *default* sorting is in **ascending** order.
 (Because the *default* for `count()` is `sort = FALSE`)
 
-#### 6.
-
-> Suppose we have the following tiny data frame:
+#### 6. Suppose we have the following tiny data frame:
 
 ``` r
 df <- tibble(
   x = 1:5,
-  y = c("a", "b", "a", "a", "b"),
+  y = c("a", "b", "b", "a", "b"),
   z = c("K", "K", "L", "L", "K")
-  )
+)
 ```
 
-> 1.  Write down what you think the output will look like, then check if
->     you were correct, and describe what `group_by()` does.
+- 6.a Write down what you think the output will look like, then check if
+  you were correct, and describe what `group_by()` does.
 
-This will result in a dataframe with two groups, namely `a` and `b`
-according to the values in `y`. So `group_by()` gets all the unique
-values (combinations) of the defined columns and groups the dataframe
-accordingly.
-
-``` r
-df |> 
+  ``` r
+  df |> 
   group_by(y)
-```
+  ```
 
-    # A tibble: 5 × 3
-    # Groups:   y [2]
-          x y     z    
-      <int> <chr> <chr>
-    1     1 a     K    
-    2     2 b     K    
-    3     3 a     L    
-    4     4 a     L    
-    5     5 b     K    
+  - This will result in a dataframe with two groups, namely `a` and `b`
+    according to the values in `y`. So `group_by()` gets all the unique
+    values (combinations) of the defined columns and groups the
+    dataframe accordingly.
 
-> 2.  Write down what you think the output will look like, then check if
->     you were correct, and describe what `arrange()` does. Also,
->     comment on how it’s different from the `group_by()` in part (a).
+    ``` r
+    df |> 
+      group_by(y)
+    ```
 
-`arrange(y)` will result in a dataframe where all the rows will be
-arranged in ascending order of the values in the `y` column, meaning
-that the `a`s come first and then the `b`s. But yeah, what does it do,
-when there are multiple same values to arrange by:
+        # A tibble: 5 × 3
+        # Groups:   y [2]
+              x y     z    
+          <int> <chr> <chr>
+        1     1 a     K    
+        2     2 b     K    
+        3     3 b     L    
+        4     4 a     L    
+        5     5 b     K    
 
-``` r
-df |> 
-  arrange(y)
-```
+- 6.b Write down what you think the output will look like, then check if
+  you were correct, and describe what `arrange()` does. Also, comment on
+  how it’s different from the `group_by()` in part (a).
 
-    # A tibble: 5 × 3
-          x y     z    
-      <int> <chr> <chr>
-    1     1 a     K    
-    2     3 a     L    
-    3     4 a     L    
-    4     2 b     K    
-    5     5 b     K    
+  ``` r
+  df |> 
+   arrange(y)
+  ```
 
-Ah, It does it in the order it finds the entries, as you can see
-comparing the `x` columns.
+  - `arrange(y)` will result in a dataframe where all the rows will be
+    arranged in ascending order of the values in the `y` column, meaning
+    that the `a`s come first and then the `b`s. But yeah, what does it
+    do, when there are multiple same values to arrange by:
+
+    ``` r
+    df |> 
+      arrange(y)
+    ```
+
+        # A tibble: 5 × 3
+              x y     z    
+          <int> <chr> <chr>
+        1     1 a     K    
+        2     4 a     L    
+        3     2 b     K    
+        4     3 b     L    
+        5     5 b     K    
+
+    Ah, It does it in the order it finds the entries, as you can see
+    comparing the `x` columns.
+
+- 6.c Write down what you think the output will look like, then check if
+  you were correct, and describe what the pipeline does.
+
+  ``` r
+  df |> 
+    group_by(y) |> 
+    summarize(mean_x = mean(x))
+  ```
+
+  - This will result in a dataframe with one column having the two
+    unique values of `y`, and one column with the mean of the
+    corresponding `x` values.
+
+    ``` r
+    df |> 
+      group_by(y) |> 
+      summarize(mean_x = mean(x))
+    ```
+
+        # A tibble: 2 × 2
+          y     mean_x
+          <chr>  <dbl>
+        1 a       2.5 
+        2 b       3.33
+
+- 6.d Write down what you think the output will look like, then check if
+  you were correct, and describe what the pipeline does.
+
+  ``` r
+  df |> 
+   group_by(y, z) |> 
+   summarize(mean_x = mean(x))
+  ```
+
+  - The output will be a dataframe with the single values `a` and `b` in
+    the `y` column and the mean of all the values that were associated
+    with the corresponding letters in the `z` column. But I think the
+    `z` column also has letters; What will happen in that case?
+    - Ahh, now that I think about it; It will group all unique
+      combinations of the `y` and `y` values, which should result in
+      four rows, and for each row the mean of the corresponding `x`
+      values is given in another column. Let’s see:
+
+    ``` r
+    df |> 
+      group_by(y, z) |> 
+      summarize(mean_x = mean(x))
+    ```
+
+        `summarise()` has grouped output by 'y'. You can override using the `.groups`
+        argument.
+
+        # A tibble: 4 × 3
+        # Groups:   y [2]
+          y     z     mean_x
+          <chr> <chr>  <dbl>
+        1 a     K        1  
+        2 a     L        4  
+        3 b     K        3.5
+        4 b     L        3  
+
+- 6.e Write down what you think the output will look like, then check if
+  you were correct, and describe what the pipeline does. How is the
+  output different from the one in part (d)?
+
+  ``` r
+  #|eval: false
+  df |> 
+    group_by(y, z) |> 
+    summarize(mean_x = mean(x), .groups = "drop")
+  ```
+
+      # A tibble: 4 × 3
+        y     z     mean_x
+        <chr> <chr>  <dbl>
+      1 a     K        1  
+      2 a     L        4  
+      3 b     K        3.5
+      4 b     L        3  
+
+  - This will give the same columns and rows as in part (d), but there
+    won’t be any groups, whereas in (d) the dataframe was still grouped
+    by the values of the `y` column. Let’s see:
+
+    ``` r
+    df |> 
+      group_by(y, z) |> 
+      summarize(mean_x = mean(x), .groups = "drop")
+    ```
+
+        # A tibble: 4 × 3
+          y     z     mean_x
+          <chr> <chr>  <dbl>
+        1 a     K        1  
+        2 a     L        4  
+        3 b     K        3.5
+        4 b     L        3  
+
+- 6.f Write down what you think outputs will look like, then check if
+  you were correct, and describe what each pipieline does. How are
+  outputs of the two pipelines different?
+
+  ``` r
+  df |> 
+    group_by(y, z) |> 
+    summarize(mean_x = mean(x))
+
+  df |> 
+    group_by(y, z) |> 
+    mutate(mean_x = mean(x))
+  ```
+
+  - The first output will be a dataframe with three columns (y, z,
+    mean_x), and as many rows as there are unique combinations of the
+    `y` and `z` values.
+
+    ``` r
+    df |> group_by(y, z) |> 
+    summarize(mean_x = mean(x))
+    ```
+
+        `summarise()` has grouped output by 'y'. You can override using the `.groups`
+        argument.
+
+        # A tibble: 4 × 3
+        # Groups:   y [2]
+          y     z     mean_x
+          <chr> <chr>  <dbl>
+        1 a     K        1  
+        2 a     L        4  
+        3 b     K        3.5
+        4 b     L        3  
+
+  - The second output will add a new `mean_x` column to the initial
+    dataframe, in which the mean of all `x`s values will be repeated for
+    each row.
+
+    ``` r
+    df |> group_by(y, z) |> 
+    mutate(mean_x = mean(x))
+    ```
+
+        # A tibble: 5 × 4
+        # Groups:   y, z [4]
+              x y     z     mean_x
+          <int> <chr> <chr>  <dbl>
+        1     1 a     K        1  
+        2     2 b     K        3.5
+        3     3 b     L        3  
+        4     4 a     L        4  
+        5     5 b     K        3.5
+
+    - Ohh, so what the second one did was a bit different. It calculated
+      the mean for the identified groups and added the values of each
+      group exactly to those rows belonging to that group. Pretty slick.
+      And the groups were not dropped, okay so mutate also works
+      groupwise. Check, check!
+
+## Case study: aggregates and sample size
+
+This topic goes deep if you are interested, and I guess it delivers
+solutions to the question about the flights that are late or not. But
+yeah, not this weekend.

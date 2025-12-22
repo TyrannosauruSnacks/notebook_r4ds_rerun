@@ -1,15 +1,21 @@
-# 02 Workflow: Basics
+# Workflow basics
 Max Hachemeister
+2025-12-22
 
 - [2.1 Coding basics](#21-coding-basics)
 - [2.2 Comments](#22-comments)
 - [2.3 What’s in a name?](#23-whats-in-a-name)
 - [2.4 Calling functions](#24-calling-functions)
 - [2.5 Exercises](#25-exercises)
-  - [1.](#1)
-  - [2.](#2)
-  - [3.](#3)
-  - [4.](#4)
+  - [1.Why does this code not work?](#1why-does-this-code-not-work)
+  - [2. Tweak each of the following R commands so that they run
+    correctly](#2-tweak-each-of-the-following-r-commands-so-that-they-run-correctly)
+  - [3. Press Option + Shift + K / Alt + Shift + K. What happens? How
+    can you get to the same place using the
+    menus?](#3-press-option--shift--k--alt--shift--k-what-happens-how-can-you-get-to-the-same-place-using-the-menus)
+  - [4. Let’s revisit an exercise from Section 1.6. Run the following
+    lines of code. Which of the two plots is saved as `02_mpg-plot.png`?
+    Why?](#4-lets-revisit-an-exercise-from-section-16-run-the-following-lines-of-code-which-of-the-two-plots-is-saved-as-02_mpg-plotpng-why)
 - [2.6 Summary](#26-summary)
 
 > “Frustration is natural when you start programming in R \[…\].”
@@ -127,9 +133,7 @@ input. Ah yeah and the chunk output will also let you know.
 
 ## 2.5 Exercises
 
-### 1.
-
-> Why does this code not work?
+### 1.Why does this code not work?
 
 Example code:
 
@@ -143,9 +147,7 @@ my_varıable
 The “i” in the second `my_varıable` is different than that in the
 assigned variable.
 
-### 2.
-
-> Tweak each of the following R commands so that they run correctly
+### 2. Tweak each of the following R commands so that they run correctly
 
 Example code:
 
@@ -221,10 +223,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 ![](02_workflow_basics_files/figure-commonmark/unnamed-chunk-11-1.png)
 
-### 3.
-
-> Press Option + Shift + K / Alt + Shift + K. What happens? How can you
-> get to the same place using the menus?
+### 3. Press Option + Shift + K / Alt + Shift + K. What happens? How can you get to the same place using the menus?
 
 Pressing “Alt + Shift + K” opens the “**K**eyboard Shortcut Quick
 Reference”. Which shows commonly used shortcuts for the RStudio IDE and
@@ -233,10 +232,7 @@ also provides a link to all shortcuts in its top right corner.
 You can also get to this Window by clicking “Tools” -\> “Keyboard
 Shortcuts Help” in the menu bar on top of the Rstudio IDE.
 
-### 4.
-
-> Let’s revisit an exercise from Section 1.6. Run the following lines of
-> code. Which of the two plots is saved as `02_mpg-plot.png`? Why?
+### 4. Let’s revisit an exercise from Section 1.6. Run the following lines of code. Which of the two plots is saved as `02_mpg-plot.png`? Why?
 
 > > I added a “02” to the plot name to have the files ordered in my
 > > project folder.

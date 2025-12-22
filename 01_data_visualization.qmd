@@ -1,13 +1,15 @@
 ---
-title: "1 Data visualization"
+title: "Data visualization"
 author: "Max Hachemeister"
-date: "`r Sys.Date()`"
-format: html
+date: last-modified
+date-format: iso
+format: gfm
 toc: true
 toc-depth: 3
 ---
 
 # Prerequisites
+
 
 ```{r}
 #| label: setup
@@ -136,8 +138,7 @@ ggplot(data = penguins,
 
 ### 1.2.5 Exercises
 
-#### 1.
-> How many rows are in `penguins` ? How many columns?
+#### 1. How many rows are in `penguins` ? How many columns?
  
 ```{r}
 glimpse(penguins)
@@ -145,8 +146,7 @@ glimpse(penguins)
  
 There are 344 rows and 8 columns in `penguins`.
   
-####  2.
-> What does the `bill_depth_mm` variable in the `penguins` data frame describe?
+####  2. What does the `bill_depth_mm` variable in the `penguins` data frame describe?
     
 ```{r}
 ?penguins
@@ -154,8 +154,7 @@ There are 344 rows and 8 columns in `penguins`.
     
 `bill_depth_mm` describes the bill depth in millimeters of penguins
 
-####  3. 
-> Make a scatterplot of `bill_depth_mm` vs. `bill_length_mm`. That is, make a scatterplot with `bill_depth_mm` on the y-axis and `bill_length_mm` on the x-axis. Describe the relationship between the two variables.
+####  3. Make a scatterplot of `bill_depth_mm` vs. `bill_length_mm`. That is, make a scatterplot with `bill_depth_mm` on the y-axis and `bill_length_mm` on the x-axis. Describe the relationship between the two variables.
   
 ```{r}
 ggplot(data = penguins,
@@ -206,8 +205,7 @@ ggplot(
 
 The regression lines now indicate a positive relationship between bill depth and bill length within each species. Interestingly the Chinstrap Penguins seem to be separated into two groups. 
 
-####  4.
-> What happens if you make a scatterplot of `species` vs. `bill_depth_mm`? What might be a better choice of geom?
+####  4. What happens if you make a scatterplot of `species` vs. `bill_depth_mm`? What might be a better choice of geom?
 
 ```{r}
 ggplot(
@@ -260,8 +258,7 @@ ggplot(
 ```
   Well now we see that Gentoo Penguins, while being the heaviest, seem to have generally thinner bills. The regression line is wonky as there seem to be two groups and those are not linearly related. But yeah. That should suffice for now.
     
-####  5.
-> Why does the following give an error and how would you fix it?
+#### 5. Why does the following give an error and how would you fix it?
   
 ```{r}
 #| error: true
@@ -272,8 +269,7 @@ ggplot(data = penguins) +
   
  `geom_point` expects the `x` and `y` aesthetics to be mapped. So I would map for example `bill_depth_mm` and `body_mass_g` to `x` and `y` respectively.
     
-####  6.
-> What does the `na.rm` argument do in `geom_point()`? What is the default value of the argument? Create a scatterplot where you successfully use this argument set to `TRUE`.
+####  6. What does the `na.rm` argument do in `geom_point()`? What is the default value of the argument? Create a scatterplot where you successfully use this argument set to `TRUE`.
 
 First check the documentation for geom_point()  
 ```{r}
@@ -292,8 +288,7 @@ ggplot(
 
 Ah yeah, there is no more warning in the output.
     
-####  7.
-> Add the following caption to the plot you made in the previous exercise:"Data come from the palmerpenguins package." Hint: Take a look at the documentation for `labs()`.
+####  7. Add the following caption to the plot you made in the previous exercise:"Data come from the palmerpenguins package." Hint: Take a look at the documentation for `labs()`.
 
 Check the documentation for labs  
 ```{r}
@@ -323,8 +318,7 @@ ggplot(
   )
 ```
     
-####  8.
-> Recreate the following visualization. What aesthetic should `bill_depth_mm` be mapped to? And should it be mapped at the global level or at the geom level?
+####  8. Recreate the following visualization. What aesthetic should `bill_depth_mm` be mapped to? And should it be mapped at the global level or at the geom level?
 
 ![Example Plot](images/r4ds_1_exercise_referenceplot.png)
 We see a scatterplot of `body_mass_g` and `flipper_length_mm` with an added `geom_smooth()`. Everything else is default.
@@ -352,8 +346,7 @@ ggplot(
 
 Okay, that seems right. There are many warnings, but the plot got rendered.
 
-#### 9.
-> Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
+#### 9. Run this code in your head and predict what the output will look like. Then, run the code in R and check your predictions.
 
 ```{r}
 #| eval: false
@@ -379,8 +372,7 @@ ggplot(
 
 Ah and the `se = false` argument for `geom_smooth()` hides the gray areas around the regression lines.
 
-#### 10.
-> Will these two graphs look different? Why/why not?
+#### 10. Will these two graphs look different? Why/why not?
 
 ```{r}
 #| eval: false
@@ -478,9 +470,7 @@ ggplot(
 
 ### 1.4.3 Exercises
 
-#### 1.
-
-> Make a barplot of `species` of `penguins`, where you assing `species` to the `y` aesthetic. How is this plot different?
+#### 1. Make a barplot of `species` of `penguins`, where you assing `species` to the `y` aesthetic. How is this plot different?
 >> why is scatterplot written as one and bar plot written as two words?
 
 ```{r}
@@ -502,9 +492,7 @@ ggplot(
 
 Gotcha, so the bars either go in `x` direction, that is vertical; or they go in `y` direction, that is, horizontal.
 
-#### 2.
-
-> How are the following two plots different? Which aesthetic, `color` or `fill`, is more useful for changing the color of the bars?
+#### 2. How are the following two plots different? Which aesthetic, `color` or `fill`, is more useful for changing the color of the bars?
 
 ```{r}
 ggplot(
@@ -522,9 +510,7 @@ ggplot(
 
 So `color` applies to the outline and `fill` to the area of the geom.
 
-#### 3.
-
-> What does the `bins` argument in `geom_histogram()` do?
+#### 3. What does the `bins` argument in `geom_histogram()` do?
 
 I can remember this.
 The `bins`... hold up!
@@ -545,9 +531,7 @@ ggplot(
 
 Yep, that's ten.
 
-#### 4. 
-
-> Make a histogram of the `carat` variable in the `diamonds` dataset that is available when you load the tidyverse package. Experiment with different binwidths. What binwidth reveals the most interesting patterns?
+#### 4. Make a histogram of the `carat` variable in the `diamonds` dataset that is available when you load the tidyverse package. Experiment with different binwidths. What binwidth reveals the most interesting patterns?
 
 Let's first take a look at the dataset, to get a sense for the scale of the `carat` and also check the documentation:
 ```{r}
@@ -708,13 +692,12 @@ ggplot(
 
 ### 1.5.5 Exercises
 
-#### 1.
+#### 1. The `mpg` data frame that is bundled with the ggplot2 package contains 234 observations collected by the US Environmental Protection Agency on 38 car models.
 
-> The `mpg` data frame that is bundled with the ggplot2 package contains 234 observations collected by the US Environmental Protection Agency on 38 car models.
-Which variables in `mpg` are categorical?
-Which variables are numerical?
-Hint: Type `?mpg` to read the documentation for the dataset.
-How can you see this information when you run `mpg`?
+  - Which variables in `mpg` are categorical?
+  - Which variables are numerical?
+    Hint: Type `?mpg` to read the documentation for the dataset.
+  - How can you see this information when you run `mpg`?
 
 Read the documentation, `glimpse()` the dataframe and run `mpg` directly:
 
@@ -736,9 +719,8 @@ The numerical variables are `displ`, `year`, `cyl`, `cty` and `hwy`.
 
 Well come to think of it, `cyl`, which is the number of cylinders might count as a categorical variable, as there are usually a few possible values for that and arithmetic doesn't seem sensible in that case.
 
-#### 2.
-
-> Make a scatterplot of `hwy`vs. `displ` using the `mpg` data frame. Next, map a third numerical variable to `color`, then `size`, then both `color` and `size`, then `shape`. How do these aesthetics behave differently for categorical vs. numerical variables?
+#### 2. Make a scatterplot of `hwy`vs. `displ` using the `mpg` data frame.
+> Next, map a third numerical variable to `color`, then `size`, then both `color` and `size`, then `shape`. How do these aesthetics behave differently for categorical vs. numerical variables?
 
 Scatterplot of `hwy` vs. `displ`.
 The vs. implicates for me that you read it like 'y vs. x'. Well that's at least a convention I follow.
@@ -804,9 +786,7 @@ ggplot(
 
 Ah okay, continuous variables are not by default mapable to `shape`.
 
-#### 3.
-
-> In the scatterplot of `hwy` vs. `dspl`, what happens if you map a third variable to `linewidth`?
+#### 3. In the scatterplot of `hwy` vs. `dspl`, what happens if you map a third variable to `linewidth`?
 
 I will map `cty` to `linewidth`.
 Interesting what will happen, as it's just points. So what does `linewidth` even apply to?
@@ -827,9 +807,7 @@ ggplot(
 
 Ah, so `linewidth` is unknown for the scatterplot and therefore ignored, but at least a warning is given.
 
-#### 4.
-
-> What happens if you map the same variable to multiple aesthetics?
+#### 4. What happens if you map the same variable to multiple aesthetics?
 
 Let's map `hwy` to `x`, `y` and `color`:
 
@@ -843,11 +821,10 @@ ggplot(
 
 Seems like it did what I asked for. It's just not much new information. We can see the distribution a bit.
 
-#### 5.
+#### 5. Make a scatterplot of `bill_depth_mm` vs. `bill_length_mm` and color the points by `species`.
+> What does adding coloring by species reveal about the relationship between these two variables? What about faceting by `species`?
 
-> Make a scatterplot of `bill_depth_mm` vs. `bill_length_mm` and color the points by `species`. What does adding coloring by species reveal about the relationship between these two variables? What about faceting by `species`?
-
->> Why is the second `species` not formated like the other occurences?
+> [!note] Why is the second `species` not formated like the other occurences?
 
 So there are two visualizations to be done. Let's start with the scatterplot:
 
