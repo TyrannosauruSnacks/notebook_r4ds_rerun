@@ -1,0 +1,57 @@
+---
+title:       "Data tidying"
+author:      "Max Hachemeister"
+date:        last-modified
+date-format: iso
+format:
+  gfm:
+    toc:     true
+---
+
+# Prerequisites
+
+```{r}
+#| label: setup
+#| results: false
+
+library(tidyverse)
+theme_set(theme_light())
+```
+
+# Introduction
+
+## Tidy data
+
+Rules of tidy data:
+
+ 1. Each variable is a column; each column is a variable.
+ 2. Each observation is a row; each row is an observation.
+ 3. Each value is a cell; each cell is a single value.
+  
+### Exercises
+#### 1. For each of the sample tables, describe what each observation and each column represents.
+    
+ 1. In `table1` each observation represents the population and tuberculosis cases per year per country, while the column represent the variables countries, year, cases and population.
+    ```{r}
+    table1
+    ```
+    
+ 2. In `table2` each observation represents either the number of cases or the population per year per country. Therefore the columns `type` represents two possible variables, namely cases or population.
+    ```{r}
+    table2
+    ```
+    
+ 3. In `table3` each observation represents the calculation of the tuberculosis rate per year per country. The columns `country` and `year` represent their literal variables, whereas `rate`, even though being a variable has two values in its cells.
+    ```{r}
+    table3
+    ```
+       
+#### 2. Sketch out the process you'd use to calculate the `rate` for `table2` and `table3`.
+> You will need to perform four operations:
+>
+> a. Extract the number of TB cases per country per year.
+> b. Extract the matching population per country per year.
+> c. Divide cases by population, and multiply by 1000.
+> d. Store back in the approriate place.
+
+
