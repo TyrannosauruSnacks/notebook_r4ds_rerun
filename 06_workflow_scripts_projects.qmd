@@ -1,0 +1,22 @@
+---
+title:       "Workflow: Scripts and projects"
+author:      "Max Hachemeister"
+date:        last-modified
+date-format: iso
+format:
+  gfm:
+    toc:     true
+---
+
+# Prerequisites
+
+```{r}
+#| label: setup
+#| results: false
+
+library(tidyverse)
+theme_set(theme_light())
+```
+
+## Scripts
+

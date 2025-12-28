@@ -1,6 +1,6 @@
 # Data tidying
 Max Hachemeister
-2025-12-24
+2025-12-25
 
 - [Prerequisites](#prerequisites)
 - [Introduction](#introduction)
@@ -12,6 +12,8 @@ Max Hachemeister
       names](#many-variables-in-columns-names)
     - [Data an variable names in the column
       headers](#data-an-variable-names-in-the-column-headers)
+  - [Widening data](#widening-data)
+  - [Summary](#summary)
 
 # Prerequisites
 
@@ -253,3 +255,94 @@ household |>
 
 - So now we see that the actual observation is not the family, but the
   single child.
+
+## Widening data
+
+- For observations spread across multiple rows.
+  - I.e. multiple ‘variables’ in a single column.
+- Less common, but more often in governmental contexts.
+
+`pivot_wider()`s interface is the other way around, so you define the
+column in which those values are that should be columns of their own.
+
+The steps for `pivot_wider()` are as follows:
+
+- Identify the *unique* values in the defined column.
+  - These become independent columns in a new dataframe which would be
+    empty at first.
+- Then populate the new dataframe with the value of the original
+  dataframe that belongs to the original row corresponding to the
+  columns of the new dataframe.
+
+Check this example:
+
+Make a test dataframe
+
+``` r
+df <- 
+  tribble(
+    ~id, ~measurement, ~value,
+    "A", "bp1",        100,
+    "B", "bp1",        140,
+    "B", "bp2",        115,
+    "A", "bp2",        120,
+    "A", "bp3",        105
+  )
+```
+
+Pivot this to a wider format so that the values of measurement become
+independent columns
+
+``` r
+df |> 
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  )
+```
+
+    # A tibble: 2 × 4
+      id      bp1   bp2   bp3
+      <chr> <dbl> <dbl> <dbl>
+    1 A       100   120   105
+    2 B       140   115    NA
+
+Check the unique values in the `measurement` column
+
+``` r
+df |>
+  distinct(measurement)
+```
+
+    # A tibble: 3 × 1
+      measurement
+      <chr>      
+    1 bp1        
+    2 bp2        
+    3 bp3        
+
+These become the new columns and for example the value of `blood`
+pressure for the first row would be put into the the new row:column
+combination with the matchting values for `id` and `measurement`.
+
+``` r
+df |> 
+  slice_head(n = 1)
+```
+
+    # A tibble: 1 × 3
+      id    measurement value
+      <chr> <chr>       <dbl>
+    1 A     bp1           100
+
+## Summary
+
+In this section I learned about the three rules for tidy data, which
+make total sense once understood, but are not always intuitive while
+collecting, or entering data. Therefore I also learned how to *read*
+untidy data, as well as the tools to transform this into the tidy
+dataframe I need for efficient exploration, namely `pivot_longer()` and
+`pivot_wider()`. I know now that if an actual single variable is spread
+out over multiple columns these would nee to be pivoted longer, while
+actually independent variables populating the same column need to be
+pivoted longer.
