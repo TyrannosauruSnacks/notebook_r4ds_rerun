@@ -174,7 +174,7 @@ From what I've gathered `read_fwf()` need at least the filename or string, the `
 > To prevent them from causing problem, they need to be sorrounded by a quoting character, like `"` or `'`. By default, `read_csv()` assumes that the quoting character will be `"`. To read the following text into a data frame, what argument to `read_csv()` do you need to specify?
 > `"x,y\n1,'a,b'"
 
-I think I need to specifiy the non standard quote with the `quote` argument:
+I think I need to specify the non standard quote with the `quote` argument:
 ```{r}
 #| warning: false
 
@@ -184,3 +184,179 @@ read_csv(
 )
 ```
 
+#### 5. Identify what is wrong with each of the following incline CSV files. What happens when you run the code?
+
+ 1. Here we have a missing value for the third column which should be `c`.
+    ```{r}
+    #| warning: false
+
+    read_csv("a,b\n1,2,3\n4,5,6")
+    ```
+    Interesting, so the values for the second and third column were concatenated into one instead of dropping the third column completely.
+
+ 2. This time there are more values in the third row than there are actual columns defined in the heading row. I guess as before the values will be concatenated so the second row will be `1,2,NA` and the third row will be `1,2,34`. Let's see:
+    ```{r}
+    #| warning: false
+
+    read_csv("a,b,c\n1,2\n1,2,3,4")
+    ```
+   
+ 3. In this csv there is only one entry in the second row which is also half quoted with a `"` in front. I think this either won't work, or it will put a string `"1` as value: 
+    ```{r}
+    #| warning: false
+
+    read_csv("a,b\n\"1")
+    ```
+    Yeah, it read the heading row, but then gave no further inputs. Odd, because I would think `"\"1"` would at least result in a string `"1`. 
+
+ 4. The rows of this csv have different data types; one is characters, and the other is integers. I think this will give a warning -or error-, or just keep the rows that are of the same type as the first one found.
+    ```{r}
+    #| warning: false
+    
+    read_csv("a,b\n1,2\na,b")
+    ```
+    Haha, sure it just reads all the values as strings. That's sensible.
+    
+ 5. Here the separator is `;` instead of `,` which shouldn't bother the function. Ah well but as `read_csv()` is used it should not work.
+    ```{r}
+    #| warning: false
+
+    read_csv("a;b\n1;3")
+    ```
+    Sure, just read is as strings and then single rows. :-)
+
+So `read_csv()` will do anything to get the data into R. Probably so you can do the wrangling as soon as possible within R. Might be a good idea, but is something to be aware of.
+
+#### 6. Practice referring to non-syntactic names in the following data frame by:
+
+ a. Extracting the variable called `1`.
+ b. Plotting a scatterplot of `1` vs. `2`.
+ c. Creating a new column called `3`, which is `2` divided by `1`.
+ d. Renaming the columns to `one`, `two`, and `three`.
+ 
+```{r}
+annoying <- 
+  tibble(
+    `1` = 1:10,
+    `2` = `1` * 2 + rnorm(length(`1`))
+  )
+```
+
+ a. Extracting the variable called `1`.
+    ```{r}
+    #| warning: false
+
+    annoying |> 
+      select(`1`)
+    ```
+  
+ b. Plotting a scatterplot of `1` vs. `2`.
+    ```{r}
+    annoying |> 
+      ggplot(
+        aes(`1`, `2`)
+      ) +
+      geom_point()
+    ```
+
+ c. Creating a new column called `3`, which is `2` divided by `1`.
+    ```{r}
+    annoying |> 
+      mutate(`3` = `2` / `1`)
+    ```
+
+ d. Renaming the columns to `one`, `two`, and `three`.
+    ```{r}
+    annoying |> 
+      mutate(`3` = `2` / `1`) |> 
+        rename(
+          `one` = `1`,
+          `two` = `2`,
+          `three` = `3`
+        )
+    ```
+    
+## Controlling column types
+
+When columns turn out to be character, even though you 'know' they are something different, specify to the column type and check the warning message to see why it was read as a string:
+
+```{r}
+simple_csv <-
+  "x
+  10
+  .
+  20
+  30"
+
+read_csv(
+  simple_csv,
+  col_types = "d"
+)
+```
+
+Check the error:
+```{r}
+problems()
+```
+
+And correct it in the original call:
+```{r}
+read_csv(
+  simple_csv,
+  col_types = "d",
+  na = "."
+)
+```
+
+Yes, it also worked before, but adressing the warning messages helps you be aware of what you really want from the code.
+
+## Reading data from multiple files
+
+If the data is spread across several files, but at least with the same column layout, you can directly get them into a single dataframe by putting their paths into a vector:
+
+```{r}
+sales_files <- 
+  c(
+    "https://pos.it/r4ds-01-sales",
+    "https://pos.it/r4ds-02-sales",
+    "https://pos.it/r4ds-03-sales"
+  )
+
+read_csv(
+  sales_files,
+  id = "file"
+)
+```
+
+To spare you typing all the filenames individually you can use this also with `list.files()` to get the list of all the files in a folder, that match what you are looking for. But filemanagement in R is a jam for its own.
+
+## Writing to a file
+
+Use `write_csv()` or `write_tsv()` to write your dataframes back to disk.
+Problem is that these files do not save the column type. The `write_rds()` function solves that, but you can also use the `write_parquet()` function. Both save the data as binary files with metadata, which are faster to read.
+
+
+## Data entry
+
+Entry data column-wise:
+```{r}
+tibble(
+  x = c(1, 2, 5),
+  y = c("h", "m", "g"),
+  z = c(.08, .83, .60)
+)
+```
+
+Entry data row-wise:
+```{r}
+tribble(
+  ~x, ~y, ~z,
+  1, "h", .08,
+  2, "m", .83,
+  3, "g", .60
+)
+```
+
+## Summary
+
+In this chapter I've learned how to read data from `csv` files of different forms like comma-, tab- or something else-separated structures. I learned the different datatypes columns can have, how R idetifies those, and how I can troubleshoot if it did not work. I became aware of different file types to write my new dataframes back to, and their respective pros and cons. I now know how to read in files in batch, instead of typing them in manually.
