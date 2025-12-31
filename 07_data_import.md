@@ -1,6 +1,6 @@
 # Data import
 Max Hachemeister
-2025-12-29
+2025-12-31
 
 - [Prerequisites](#prerequisites)
   - [Reading data from a file](#reading-data-from-a-file)
@@ -21,11 +21,11 @@ library(tidyverse)
 ```
 
     ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ✔ forcats   1.0.1     ✔ stringr   1.5.2
-    ✔ ggplot2   4.0.0     ✔ tibble    3.3.0
-    ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-    ✔ purrr     1.1.0     
+    ✔ dplyr     1.1.4     ✔ readr     2.1.6
+    ✔ forcats   1.0.1     ✔ stringr   1.6.0
+    ✔ ggplot2   4.0.1     ✔ tibble    3.3.0
+    ✔ lubridate 1.9.4     ✔ tidyr     1.3.2
+    ✔ purrr     1.2.0     
     ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ✖ dplyr::filter() masks stats::filter()
     ✖ dplyr::lag()    masks stats::lag()
@@ -491,16 +491,16 @@ annoying <-
         # A tibble: 10 × 3
              `1`   `2`   `3`
            <int> <dbl> <dbl>
-         1     1  1.47  1.47
-         2     2  3.55  1.78
-         3     3  7.13  2.38
-         4     4  8.82  2.21
-         5     5  9.78  1.96
-         6     6 11.4   1.90
-         7     7 15.1   2.15
-         8     8 16.7   2.09
-         9     9 19.3   2.14
-        10    10 18.1   1.81
+         1     1  2.42  2.42
+         2     2  4.82  2.41
+         3     3  7.46  2.49
+         4     4  8.83  2.21
+         5     5  8.35  1.67
+         6     6 12.0   2.00
+         7     7 12.4   1.78
+         8     8 15.2   1.90
+         9     9 18.7   2.07
+        10    10 20.6   2.06
 
 4.  Renaming the columns to `one`, `two`, and `three`.
 
@@ -517,16 +517,16 @@ annoying <-
         # A tibble: 10 × 3
              one   two three
            <int> <dbl> <dbl>
-         1     1  1.47  1.47
-         2     2  3.55  1.78
-         3     3  7.13  2.38
-         4     4  8.82  2.21
-         5     5  9.78  1.96
-         6     6 11.4   1.90
-         7     7 15.1   2.15
-         8     8 16.7   2.09
-         9     9 19.3   2.14
-        10    10 18.1   1.81
+         1     1  2.42  2.42
+         2     2  4.82  2.41
+         3     3  7.46  2.49
+         4     4  8.83  2.21
+         5     5  8.35  1.67
+         6     6 12.0   2.00
+         7     7 12.4   1.78
+         8     8 15.2   1.90
+         9     9 18.7   2.07
+        10    10 20.6   2.06
 
 ## Controlling column types
 

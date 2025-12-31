@@ -1,0 +1,42 @@
+---
+title:       "Workflow: getting help"
+author:      "Max Hachemeister"
+date:        last-modified
+date-format: iso
+format:
+  gfm:
+    toc:     true
+---
+
+# Prerequisites
+
+```{r}
+#| label: setup
+#| results: false
+
+library(tidyverse)
+theme_set(theme_light())
+```
+
+## Google is your friend
+
+I guess this is a little bit deprecated since AI and such. The third edition of this book will probably address this.
+
+
+## Making a reprex
+
+Reprex
+: Short for minimal **repr**oducible **ex**ample.
+
+Take this example code:
+```{r}
+y <- 1:4
+mean(y)
+```
+
+Copy it to the clipboard and then call `reprex::reprex()` in the console.
+
+If in doubt, try updating your packages first. Maybe the source of you problem has already been adressed. Use `tidyverse_update()` for packages in the tidyverse. Other than that you can use the package manager of RStudio.
+
+
+
