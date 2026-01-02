@@ -38,5 +38,5 @@ Copy it to the clipboard and then call `reprex::reprex()` in the console.
 
 If in doubt, try updating your packages first. Maybe the source of you problem has already been adressed. Use `tidyverse_update()` for packages in the tidyverse. Other than that you can use the package manager of RStudio.
 
-
+Also use `dput()` to get an text only representation of R objects, like special dataframes, or functions from other packages.
 

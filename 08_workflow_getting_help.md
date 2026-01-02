@@ -1,6 +1,6 @@
 # Workflow: getting help
 Max Hachemeister
-2025-12-31
+2026-01-02
 
 - [Prerequisites](#prerequisites)
   - [Google is your friend](#google-is-your-friend)
@@ -53,3 +53,6 @@ If in doubt, try updating your packages first. Maybe the source of you
 problem has already been adressed. Use `tidyverse_update()` for packages
 in the tidyverse. Other than that you can use the package manager of
 RStudio.
+
+Also use `dput()` to get an text only representation of R objects, like
+special dataframes, or functions from other packages.
