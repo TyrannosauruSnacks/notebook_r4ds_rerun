@@ -125,4 +125,160 @@ Nice, just as I found in exercise 2, mapping an aesthetic in `aes()` works with 
 
 ## Geometric objects
 
+### Exercises
+
+#### 1. What geom would you use to draw a line chart?
+> A Boxplot? A histogram? An area chart?
+
+You can find all the answers in the text of the sections above.
+
+Linechart, `geom_line()`:
+```{r}
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_line()
+```
+
+Yeah it's ugly, but it's a linechart nevertheless.
+
+Boxplot, `geom_boxplot()`:
+```{r}
+mpg |> 
+  # Using drv here, to one boxplot per drive train type.
+  ggplot(aes(drv, hwy)) +
+  geom_boxplot()
+```
+
+Histogram, `geom_histogram()`:
+```{r}
+mpg |> 
+  ggplot(aes(hwy)) + 
+  geom_histogram(binwidth = 2)
+```
+
+Okay, area chart ist new. Maybe something like `geom_area()`?
+```{r}
+mpg |> 
+  # Added fill aesthetic to distinguish areas.
+  ggplot(aes(hwy, displ, fill = drv)) +
+  geom_area()
+```
+
+Also not pretty, but an area chart.
+
+#### 2. Earlier in this chapter we used `show.legend` without explaining it:
+> ```{r}
+> #| eval: false
+> 
+> ggplot(mpg, aes(x = displ, y = hwy)) +
+>   geom_smooth(aes(color = drv), show.legend = FALSE)
+> ```
+
+> What does `show.legend = FALSE` do here? What happens if you remove it? Why do you think we used it earlier?
+
+What does the code do:
+```{r}
+#| message: false
+
+# show.legend = FALSE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), show.legend = FALSE)
+
+# show.legend = TRUE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), show.legend = TRUE)
+```
+
+The `show.legend` argument of the `geom_smooth()` function defines whether a legend for the lines is displayed. It was used earlier to drop the legend so that the three plots have the same general look.
+
+#### 3. What does the `se` argument to `geom_smooth()` do?
+
+The documentation `?geom_smooth()` states "Display confidence band..."
+
+Let's see what it does:
+```{r}
+#| message: false
+
+# se = TRUE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), se = TRUE)
+
+# se = FALSE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), se = FALSE)
+```
+
+The `se` argument of the `geom_smooth()` defines whether the grey areas around the lines are shown.
+
+#### 4. Recreate the R code necessary to generate the following graphs.
+> Note that wherever a categorical variable is used in the plot, it's `drv`.
+
+The top left plot is a scatterplot of black points with a smooth line without grey area on top:
+```{r}
+#| message: false
+
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+The top right plot is the same plot, this time with a smooth for each type of `drv`:
+```{r}
+#| message: false
+
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(aes(group = drv), se = FALSE)
+
+```
+
+The middle left plot is a scatterplot colored by `drv` with colored smooth lines for each `drv` on top as well, and as for this and all plots in this exercise the area around the smooth lines was dropped:
+```{r}
+#| message: false
+
+mpg |> 
+  ggplot(aes(displ, hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+The middle right plot is the same as before but this time with only a single overall smooth line:
+```{r}
+#| message: false
+
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(se = FALSE)
+```
+
+The bottom left plot is the same as before but now there are three smooth lines again, each with a different linetype:
+```{r}
+#| message: false
+
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(aes(linetype = drv), se = FALSE)
+```
+
+And the final plot has no smooth lines but a white ring for each circle:
+```{r}
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  # Define it all especially for the shape.
+  geom_point(
+    shape = 21,
+    aes(fill = drv),
+    # Make it grey because the background is white.
+    color = "grey90",
+    # Make rings thicker
+    stroke = 2)
+```
 

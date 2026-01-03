@@ -1,11 +1,12 @@
 # Layers
 Max Hachemeister
-2026-01-02
+2026-01-03
 
 - [Prerequisites](#prerequisites)
   - [Aesthetic mappings](#aesthetic-mappings)
     - [Exercises](#exercises)
   - [Geometric objects](#geometric-objects)
+    - [Exercises](#exercises-1)
 
 # Prerequisites
 
@@ -184,3 +185,201 @@ vector with `TRUE` and `FALSE` values, which `aes()` in turn could
 interpret and map to the `color` aesthetic.
 
 ## Geometric objects
+
+### Exercises
+
+#### 1. What geom would you use to draw a line chart?
+
+> A Boxplot? A histogram? An area chart?
+
+You can find all the answers in the text of the sections above.
+
+Linechart, `geom_line()`:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_line()
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-8-1.png)
+
+Yeah it’s ugly, but it’s a linechart nevertheless.
+
+Boxplot, `geom_boxplot()`:
+
+``` r
+mpg |> 
+  # Using drv here, to one boxplot per drive train type.
+  ggplot(aes(drv, hwy)) +
+  geom_boxplot()
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-9-1.png)
+
+Histogram, `geom_histogram()`:
+
+``` r
+mpg |> 
+  ggplot(aes(hwy)) + 
+  geom_histogram(binwidth = 2)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-10-1.png)
+
+Okay, area chart ist new. Maybe something like `geom_area()`?
+
+``` r
+mpg |> 
+  # Added fill aesthetic to distinguish areas.
+  ggplot(aes(hwy, displ, fill = drv)) +
+  geom_area()
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-11-1.png)
+
+Also not pretty, but an area chart.
+
+#### 2. Earlier in this chapter we used `show.legend` without explaining it:
+
+> ``` r
+> ggplot(mpg, aes(x = displ, y = hwy)) +
+>   geom_smooth(aes(color = drv), show.legend = FALSE)
+> ```
+
+> What does `show.legend = FALSE` do here? What happens if you remove
+> it? Why do you think we used it earlier?
+
+What does the code do:
+
+``` r
+# show.legend = FALSE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), show.legend = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-13-1.png)
+
+``` r
+# show.legend = TRUE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), show.legend = TRUE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-13-2.png)
+
+The `show.legend` argument of the `geom_smooth()` function defines
+whether a legend for the lines is displayed. It was used earlier to drop
+the legend so that the three plots have the same general look.
+
+#### 3. What does the `se` argument to `geom_smooth()` do?
+
+The documentation `?geom_smooth()` states “Display confidence band…”
+
+Let’s see what it does:
+
+``` r
+# se = TRUE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), se = TRUE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-14-1.png)
+
+``` r
+# se = FALSE
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_smooth(aes(color = drv), se = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-14-2.png)
+
+The `se` argument of the `geom_smooth()` defines whether the grey areas
+around the lines are shown.
+
+#### 4. Recreate the R code necessary to generate the following graphs.
+
+> Note that wherever a categorical variable is used in the plot, it’s
+> `drv`.
+
+The top left plot is a scatterplot of black points with a smooth line
+without grey area on top:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-15-1.png)
+
+The top right plot is the same plot, this time with a smooth for each
+type of `drv`:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth(aes(group = drv), se = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-16-1.png)
+
+The middle left plot is a scatterplot colored by `drv` with colored
+smooth lines for each `drv` on top as well, and as for this and all
+plots in this exercise the area around the smooth lines was dropped:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-17-1.png)
+
+The middle right plot is the same as before but this time with only a
+single overall smooth line:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(se = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-18-1.png)
+
+The bottom left plot is the same as before but now there are three
+smooth lines again, each with a different linetype:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  geom_smooth(aes(linetype = drv), se = FALSE)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-19-1.png)
+
+And the final plot has no smooth lines but a white ring for each circle:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  # Define it all especially for the shape.
+  geom_point(
+    shape = 21,
+    aes(fill = drv),
+    # Make it grey because the background is white.
+    color = "grey90",
+    # Make rings thicker
+    stroke = 2)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-20-1.png)
