@@ -1,12 +1,14 @@
 # Layers
 Max Hachemeister
-2026-01-03
+2026-01-04
 
 - [Prerequisites](#prerequisites)
   - [Aesthetic mappings](#aesthetic-mappings)
     - [Exercises](#exercises)
   - [Geometric objects](#geometric-objects)
     - [Exercises](#exercises-1)
+  - [Facets](#facets)
+    - [Exercises](#exercises-2)
 
 # Prerequisites
 
@@ -383,3 +385,217 @@ mpg |>
 ```
 
 ![](09_layers_files/figure-commonmark/unnamed-chunk-20-1.png)
+
+## Facets
+
+So `facet_wrap()` to make facets for the values of one single
+categorical variable, and `facet_grid()` is for the combinations of two
+categorical variables, hence the double sided formula `y ~ x`.
+
+### Exercises
+
+#### 1. What happens if you facet on a continuous variable?
+
+Let’s try it!
+
+Which are the continuous variables in `mpg`?
+
+``` r
+glimpse(mpg)
+```
+
+    Rows: 234
+    Columns: 11
+    $ manufacturer <chr> "audi", "audi", "audi", "audi", "audi", "audi", "audi", "…
+    $ model        <chr> "a4", "a4", "a4", "a4", "a4", "a4", "a4", "a4 quattro", "…
+    $ displ        <dbl> 1.8, 1.8, 2.0, 2.0, 2.8, 2.8, 3.1, 1.8, 1.8, 2.0, 2.0, 2.…
+    $ year         <int> 1999, 1999, 2008, 2008, 1999, 1999, 2008, 1999, 1999, 200…
+    $ cyl          <int> 4, 4, 4, 4, 6, 6, 6, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 8, 8, …
+    $ trans        <chr> "auto(l5)", "manual(m5)", "manual(m6)", "auto(av)", "auto…
+    $ drv          <chr> "f", "f", "f", "f", "f", "f", "f", "4", "4", "4", "4", "4…
+    $ cty          <int> 18, 21, 20, 21, 16, 18, 18, 18, 16, 20, 19, 15, 17, 17, 1…
+    $ hwy          <int> 29, 29, 31, 30, 26, 26, 27, 26, 25, 28, 27, 25, 25, 25, 2…
+    $ fl           <chr> "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p", "p…
+    $ class        <chr> "compact", "compact", "compact", "compact", "compact", "c…
+
+Okay, let’s try to facet by `cty`:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(~cty)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-22-1.png)
+
+Ah nice, the plots are actually faceted by all the values for which
+entries exist. I guess at a certain number the function will stop and
+give an error.
+
+#### 2. What do the empty cells in the plot above with `facet_grid(drv ~ cyl)` mean?
+
+> Run the following code. How do they relate to the resulting plot?
+
+> ``` r
+> ggplot(mpg) +
+>   geom_point(aes(x = drv, y = cyl))
+> ```
+
+I think the empty plots mean, that there were no obervations for these
+combinations of facet values.
+
+Let’s check out the code example:
+
+``` r
+mpg |> 
+  ggplot() +
+  geom_point(aes(x = drv, y = cyl))
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-24-1.png)
+
+Yes, we can see that for four wheel drives there are no observations
+with five cylinders, and for rear wheel drives there are no obervations
+with either four, or five cylinders. Also you can see that there are 0
+observations with seven cylinders generally.
+
+#### 3. What plots does the following code make?
+
+> What does `.` do?
+
+> ``` r
+> ggplot(mpg) + 
+>   geom_point(aes(x = displ, y = hwy)) +
+>   facet_grid(drv ~ .)
+>
+> ggplot(mpg) + 
+>   geom_point(aes(x = displ, y = hwy)) +
+>   facet_grid(. ~ cyl)
+> ```
+
+Run both codes and see:
+
+``` r
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-26-1.png)
+
+``` r
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-26-2.png)
+
+Hmm, I guess it has something to do with the orientation of the plots.
+Interestingly, even though `facet_grid()` is called, but with one side
+being `.`, there are only facets for the variable actually named.
+
+Let’s take this plot by plot:
+
+``` r
+# With "." on the right.
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-27-1.png)
+
+``` r
+# With "." on the left.
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(. ~ drv)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-27-2.png)
+
+``` r
+# Without ".".
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_wrap(~drv)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-27-3.png)
+
+Seems like the default of `facet_wrap()` is plots from left to right,
+and with `facet_grid()` you can define the orientation by placing the
+single variable of interest either on either side of the `~` formula
+with a `.` on the other.
+
+Check this also with the other plot:
+
+``` r
+# This should be left to right.
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-28-1.png)
+
+``` r
+# This should be top to bottom.
+ggplot(mpg) + 
+  geom_point(aes(x = displ, y = hwy)) +
+  facet_grid(cyl ~ .)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-28-2.png)
+
+So basically the `.` stands for “nothing”.
+
+#### 4. Take the first faceted plot in this section:
+
+> ``` r
+> ggplot(mpg) +
+>   geom_point(aes(x = displ, y = hwy)) +
+>   facet_wrap(~ cyl, nrow = 2)
+> ```
+
+> What are the advantages to using faceting instead of the color
+> aesthetic? What are the disadvantages? How might the balance change if
+> you had a larger dataset?
+
+Look at the plot:
+
+``` r
+mpg |> 
+  ggplot(aes(displ, hwy)) +
+  geom_point() +
+  facet_wrap(~ cyl, nrow = 2)
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-30-1.png)
+
+And do the same plot with color aesthetic instead of facet:
+
+``` r
+mpg |> 
+  # Color by "cyl", but have to put this also as factor to get distinct colors
+  ggplot(aes(displ, hwy, color = factor(cyl))) +
+  geom_point()
+```
+
+![](09_layers_files/figure-commonmark/unnamed-chunk-31-1.png)
+
+With the facet wrap the individual ranges and sizes of the groups more
+interpretable, while with the scatterplot the relation between the
+groups is more clear. I think with a larger dataset, meaning more
+points, but the same number of categories, the `facet_wrap()` would be
+better for both the relationship between and the distribution within the
+groups, because the overlapping of values would not conflict with the
+visual distinction of the groups.
+
+#### 5. Read `?facet_wrap`.
+
+> What does `nrow` do? What does `ncol` do? What other options control
+> the layout of the individual panels? Why doesn’t `facet_grid()` have
+> `nrow` and `ncol` arguments?
